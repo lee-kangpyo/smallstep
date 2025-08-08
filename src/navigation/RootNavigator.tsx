@@ -4,50 +4,18 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { View, Text } from 'react-native';
 import { RootStackParamList } from '../types/navigation';
 import { MainTabNavigator } from './MainTabNavigator';
+import { GoalDetailScreen } from '../screens/GoalDetailScreen';
+import { ActivityDetailScreen } from '../screens/ActivityDetailScreen';
+import { CreateGoalScreen } from '../screens/CreateGoalScreen';
+import { CreateActivityScreen } from '../screens/CreateActivityScreen';
+import { SettingsScreen } from '../screens/SettingsScreen';
 
 
 const Stack = createStackNavigator<RootStackParamList>();
 
-// ===== 임시 스크린 컴포넌트들 =====
-const GoalDetailScreen: React.FC<{ route: any; navigation: any }> = ({ route, navigation }) => {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>목표 상세 화면 (ID: {route.params.goalId})</Text>
-    </View>
-  );
-};
 
-const ActivityDetailScreen: React.FC<{ route: any; navigation: any }> = ({ route, navigation }) => {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>활동 상세 화면 (ID: {route.params.activityId})</Text>
-    </View>
-  );
-};
 
-const CreateGoalScreen: React.FC<{ route: any; navigation: any }> = ({ route, navigation }) => {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>새 목표 만들기 화면</Text>
-    </View>
-  );
-};
 
-const CreateActivityScreen: React.FC<{ route: any; navigation: any }> = ({ route, navigation }) => {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>새 활동 만들기 화면 (Goal ID: {route.params.goalId})</Text>
-    </View>
-  );
-};
-
-const SettingsScreen: React.FC<{ route: any; navigation: any }> = ({ route, navigation }) => {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>설정 화면</Text>
-    </View>
-  );
-};
 
 export const RootNavigator: React.FC = () => {
   return (

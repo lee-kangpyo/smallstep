@@ -1,3 +1,5 @@
+import { API_BASE_URL, ENVIRONMENT, DEBUG } from '@env';
+
 // 환경 변수 설정
 interface Environment {
   API_BASE_URL: string;
@@ -11,9 +13,21 @@ const getEnvironmentFromEnv = (): Environment => {
   // 2. 로컬 .env 파일의 환경 변수
   // 3. 기본값
   
-  const apiBaseUrl = process.env.API_BASE_URL || 'http://localhost:8000';
-  const environment = (process.env.ENVIRONMENT as any) || 'development';
-  const debug = process.env.DEBUG === 'true' || __DEV__;
+  // 디버깅을 위한 로깅
+  console.log('🔍 Environment Variables Debug:');
+  console.log('  API_BASE_URL from @env:', API_BASE_URL);
+  console.log('  ENVIRONMENT from @env:', ENVIRONMENT);
+  console.log('  DEBUG from @env:', DEBUG);
+  console.log('  __DEV__:', __DEV__);
+  
+  const apiBaseUrl = API_BASE_URL || 'http://172.30.1.97:8000';
+  const environment = (ENVIRONMENT as any) || 'development';
+  const debug = DEBUG === 'true' || __DEV__;
+  
+  console.log('📋 Final Environment Config:');
+  console.log('  API_BASE_URL:', apiBaseUrl);
+  console.log('  ENVIRONMENT:', environment);
+  console.log('  DEBUG:', debug);
   
   return {
     API_BASE_URL: apiBaseUrl,

@@ -28,12 +28,21 @@ class ApiService {
     this.api.interceptors.request.use(
       (config) => {
         if (__DEV__) {
-          console.log('API Request:', config.method?.toUpperCase(), config.url);
+          console.log('🌐 API Request:', config.method?.toUpperCase(), config.url);
+          console.log('🔗 Full URL:', (config.baseURL || '') + (config.url || ''));
+          console.log('📋 Request Config:', {
+            method: config.method,
+            url: config.url,
+            baseURL: config.baseURL,
+            fullURL: (config.baseURL || '') + (config.url || ''),
+            headers: config.headers,
+            data: config.data
+          });
         }
         return config;
       },
       (error) => {
-        console.error('API Request Error:', error);
+        console.error('❌ API Request Error:', error);
         return Promise.reject(error);
       }
     );
@@ -134,11 +143,11 @@ export const smallstepApi = {
   
   // 목표 관리
   createGoal: (goalData: GoalCreate) => apiService.post<Goal>("/api/smallstep/goals", goalData),
-  getUserGoals: (userId: number) => apiService.get<Goal[]>("/api/smallstep/goals/user/${userId}"),
+  getUserGoals: (userId: number) => apiService.get<Goal[]>(`/api/smallstep/goals/user/${userId}`),
   
   // 활동 관리
   createActivity: (activityData: ActivityCreate) => apiService.post<Activity>("/api/smallstep/activities", activityData),
-  getGoalActivities: (goalId: number) => apiService.get<Activity[]>("/api/smallstep/activities/goal/${goalId}"),
+  getGoalActivities: (goalId: number) => apiService.get<Activity[]>(`/api/smallstep/activities/goal/${goalId}`),
   
   // 게임 데이터
   createGameData: (gameData: GameDataCreate) => apiService.post<GameData>("/api/smallstep/game-data", gameData),
