@@ -1,6 +1,5 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 // QueryClient 설정
 const queryClient = new QueryClient({
@@ -30,8 +29,6 @@ export const QueryProvider: React.FC<QueryProviderProps> = ({ children }) => {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {/* 개발 환경에서만 DevTools 표시 */}
-      {__DEV__ && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   );
 };

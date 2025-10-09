@@ -5,8 +5,8 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
-  SafeAreaView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { CurrentPhaseCard } from "../components/CurrentPhaseCard";
 import { ActiveGoalSelector } from "../components/ActiveGoalSelector";
 import { ScheduleItemCard } from "../components/ScheduleItemCard";
