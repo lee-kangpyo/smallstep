@@ -180,6 +180,57 @@ export interface LoadingState {
   retryable: boolean;
 }
 
+// ===== 온보딩 관련 타입 =====
+export interface TemplatePreviewData {
+  plan_id: string;
+  goal: string;
+  status: string;
+  needs_llm_completion: boolean;
+  duration_weeks: number;
+  weekly_frequency: number;
+}
+
+export interface GoalTemplate {
+  id: string;
+  goal_text: string;
+  category: string;
+  display_order: number;
+  cached_plan_id: string;
+  preview_data: TemplatePreviewData;
+}
+
+export interface TemplatesByCategory {
+  [category: string]: GoalTemplate[];
+}
+
+export interface TemplatesResponse {
+  categories: TemplatesByCategory;
+  total_count: number;
+}
+
+export interface TemplateDetail {
+  plan_id: string;
+  goal: string;
+  duration_weeks: number;
+  weekly_frequency: number;
+  plan_data: {
+    goal: string;
+    category: string;
+    template_id: number;
+    status: string;
+    needs_llm_completion: boolean;
+    created_at: string;
+  };
+}
+
+export interface TemplateDetailResponse {
+  template_id: string;
+  goal_text: string;
+  category: string;
+  cached_plan_id: string;
+  detail: TemplateDetail;
+}
+
 // ===== 헬스체크 타입 =====
 export interface HealthCheckResponse {
   status: string;
