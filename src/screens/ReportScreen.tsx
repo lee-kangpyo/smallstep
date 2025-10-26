@@ -5,8 +5,8 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { StampCalendar } from "../components/StampCalendar";
 import { ProgressGraph } from "../components/ProgressGraph";
 import { AIFeedbackCard } from "../components/AIFeedbackCard";
