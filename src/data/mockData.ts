@@ -105,23 +105,23 @@ export {
 export const onboardingSlides: OnboardingSlide[] = [
   {
     id: 1,
-    title: "큰 목표, 어떻게 시작할지 막막한가요?",
-    subtitle: "스몰 스텝",
+    title: "계획 짜기 어려우신가요?",
+    subtitle: "AI가 대신 해드려요",
     description:
-      "거창한 목표 앞에서 막막함을 느끼는 당신을 위한 앱입니다. 작은 걸음부터 시작해보세요.",
+      "목표만 말하면 계획을 짜드릴게요!",
   },
   {
     id: 2,
-    title: "AI가 당신만을 위한 작은 행동을 찾아드려요",
-    subtitle: "개인화된 제안",
+    title: "목표를 실행 계획으로",
+    subtitle: "오늘부터 할 수 있어요",
     description:
-      "당신의 목표를 AI가 분석하여 실행 가능한 작은 행동들로 쪼개드립니다.",
+      "구체적인 단계별 계획",
   },
   {
     id: 3,
-    title: "매일 한 걸음씩, 부담 없이 시작해요",
-    subtitle: "지속 가능한 성장",
-    description: "매일의 작은 성취를 통해 꾸준히 성장하는 당신을 응원합니다.",
+    title: "매일 한 걸음씩",
+    subtitle: "꾸준히 성장해요",
+    description: "작은 성취의 기쁨",
   },
 ];
 

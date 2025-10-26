@@ -7,7 +7,8 @@ import {
   GoalAnalysisRequest, GoalAnalysisResponse,
   AIFeedbackRequest, AIFeedbackResponse,
   HealthCheckResponse,
-  ApiResponse, LoadingState
+  ApiResponse, LoadingState,
+  GoalTemplate, TemplatePreviewData
 } from '../types/api';
 import { config } from '../config/env';
 import { handleApiError, withRetry, handleNetworkError } from '../utils/errorHandler';
