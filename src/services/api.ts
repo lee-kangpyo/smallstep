@@ -17,6 +17,8 @@ class ApiService {
   private api: AxiosInstance;
 
   constructor() {
+    console.log('[api.ts] ApiService 생성 시 config.api.baseURL:', config.api.baseURL);
+    
     this.api = axios.create({
       baseURL: config.api.baseURL,
       timeout: config.api.timeout,
@@ -157,6 +159,10 @@ export const smallstepApi = {
   // LLM 서비스
   analyzeGoal: (goalData: GoalAnalysisRequest) => apiService.post<GoalAnalysisResponse>("/api/smallstep/llm/analyze-goal", goalData),
   generateFeedback: (feedbackData: AIFeedbackRequest) => apiService.post<AIFeedbackResponse>("/api/smallstep/llm/generate-feedback", feedbackData),
+  
+  // 온보딩 서비스
+  getOnboardingTemplates: () => apiService.get<{categories: Record<string, GoalTemplate[]>, total_count: number}>("/api/smallstep/onboarding/templates"),
+  getTemplatePreview: (templateId: string) => apiService.get<{template_id: string, goal_text: string, category: string, cached_plan_id: string, detail: TemplatePreviewData}>("/api/smallstep/onboarding/templates/" + templateId + "/preview"),
 };
 
 // 기존 API 함수들 (하위 호환성)

@@ -9,11 +9,13 @@ import { ReportScreen } from "../screens/ReportScreen";
 import { TestScreen } from "../screens/TestScreen";
 import { OnboardingScreen } from "../screens/OnboardingScreen";
 import { GoalsScreen } from "../screens/GoalsScreen";
+import { GoalTemplateSelectionScreen } from "../screens/GoalTemplateSelectionScreen";
 import { colors } from "../constants/colors";
 
 // 네비게이션 타입 정의
 export type RootStackParamList = {
   Onboarding: undefined;
+  GoalTemplateSelection: undefined;
   Main: undefined;
 };
 
@@ -112,6 +114,14 @@ export const AppNavigator = () => {
           }}
         >
           <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+          <Stack.Screen 
+            name="GoalTemplateSelection" 
+            component={GoalTemplateSelectionScreen}
+            options={{
+              title: '목표 선택',
+              headerShown: true,
+            }}
+          />
           <Stack.Screen name="Main" component={MainTabNavigator} />
         </Stack.Navigator>
       </NavigationContainer>

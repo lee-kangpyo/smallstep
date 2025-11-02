@@ -9,31 +9,23 @@ interface Environment {
 
 // 환경 변수 읽어오기 (로컬 .env + EAS Build 환경 변수)
 const getEnvironmentFromEnv = (): Environment => {
-  // 1. EAS Build에서 주입된 환경 변수 (우선순위 높음)
-  // 2. 로컬 .env 파일의 환경 변수
-  // 3. 기본값
+  // .env 파일에서 환경 변수 읽기
+  // EAS Build 시에는 빌드 환경 변수가 주입됨
   
-  // 디버깅을 위한 로깅
-  console.log('🔍 Environment Variables Debug:');
-  console.log('  API_BASE_URL from @env:', API_BASE_URL);
-  console.log('  ENVIRONMENT from @env:', ENVIRONMENT);
-  console.log('  DEBUG from @env:', DEBUG);
-  console.log('  __DEV__:', __DEV__);
+  console.log('[env.ts] @env에서 읽은 값:');
+  console.log('  API_BASE_URL:', API_BASE_URL);
+  console.log('  ENVIRONMENT:', ENVIRONMENT);
+  console.log('  DEBUG:', DEBUG);
   
-  const apiBaseUrl = API_BASE_URL || 'http://172.30.1.97:8000';
-  const environment = (ENVIRONMENT as any) || 'development';
-  const debug = DEBUG === 'true' || __DEV__;
-  
-  console.log('📋 Final Environment Config:');
-  console.log('  API_BASE_URL:', apiBaseUrl);
-  console.log('  ENVIRONMENT:', environment);
-  console.log('  DEBUG:', debug);
-  
-  return {
-    API_BASE_URL: apiBaseUrl,
-    ENVIRONMENT: environment,
-    DEBUG: debug,
+  const result = {
+    API_BASE_URL: API_BASE_URL!,
+    ENVIRONMENT: (ENVIRONMENT as 'development' | 'production' | 'staging') || 'development',
+    DEBUG: DEBUG === 'true' || __DEV__,
   };
+  
+  console.log('[env.ts] 최종 반환값 API_BASE_URL:', result.API_BASE_URL);
+  
+  return result;
 };
 
 export const env = getEnvironmentFromEnv();
