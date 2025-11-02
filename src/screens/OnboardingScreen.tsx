@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { OnboardingSlide } from "../components/OnboardingSlide";
@@ -224,7 +225,7 @@ export const OnboardingScreen: React.FC = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {currentStep < onboardingSlides.length ? (
         // 온보딩 슬라이드
         <View style={styles.slideContainer}>
@@ -296,7 +297,8 @@ export const OnboardingScreen: React.FC = () => {
         </View>
       ) : (
         // 목표 입력 및 결과 화면
-        <ScrollView style={styles.contentContainer}>
+        <View style={styles.contentContainer}>
+          <ScrollView>
           <Animated.View style={{ opacity: fadeAnim }}>
             {!isAnalyzing ? (
               <>
@@ -404,8 +406,9 @@ export const OnboardingScreen: React.FC = () => {
             )}
           </Animated.View>
         </ScrollView>
+        </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 

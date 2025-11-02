@@ -1,8 +1,15 @@
 import React from "react";
-import { View, Text, StyleSheet, Dimensions } from "react-native";
+import { View, Text, StyleSheet, Dimensions, Image } from "react-native";
 import { OnboardingSlide as OnboardingSlideType } from "../data/mockData";
 import { colors } from "../constants/colors";
 import { typography } from "../constants/typography";
+
+// 온보딩 이미지 import
+const onboardingImages = {
+  1: require("../../assets/images/onboarding/onboarding-1.png"),
+  2: require("../../assets/images/onboarding/onboarding-2.png"),
+  3: require("../../assets/images/onboarding/onboarding-3.png"),
+};
 
 interface OnboardingSlideProps {
   slide: OnboardingSlideType;
@@ -13,10 +20,14 @@ const { width } = Dimensions.get("window");
 export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({ slide }) => {
   return (
     <View style={styles.container}>
-      {/* 일러스트레이션 영역 (나중에 이미지 추가) */}
+      {/* 일러스트레이션 영역 */}
       <View style={styles.illustrationContainer}>
-        <View style={styles.placeholderIllustration}>
-          <Text style={styles.placeholderText}>🎯</Text>
+        <View style={styles.imageWrapper}>
+          <Image
+            source={onboardingImages[slide.id as keyof typeof onboardingImages]}
+            style={styles.illustrationImage}
+            resizeMode="cover"
+          />
         </View>
       </View>
 
@@ -37,31 +48,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 32,
+    paddingTop: 60,
   },
   illustrationContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 40,
+    paddingTop: 20,
   },
-  placeholderIllustration: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: colors.lightBlue,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: colors.black,
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+  imageWrapper: {
+    width: width * 0.75,
+    height: width * 0.75, // 원형
+    maxWidth: 360,
+    maxHeight: 360,
+    borderRadius: 180, // 완전한 원형
+    overflow: "hidden", // 둥근 모서리 적용을 위해
   },
-  placeholderText: {
-    fontSize: 80,
+  illustrationImage: {
+    width: "100%",
+    height: "100%",
   },
   contentContainer: {
     flex: 1,
