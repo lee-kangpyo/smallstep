@@ -151,8 +151,11 @@ export const useHealthCheck = () => {
       }
       return response.data;
     },
-    refetchInterval: 30000, // 30초마다 재확인
-    refetchIntervalInBackground: true,
+    retry: 2, // 최대 2번 재시도
+    retryDelay: 1000, // 1초 후 재시도
+    // 초기 로딩 화면에서는 주기적 재확인 불필요
+    refetchInterval: false,
+    refetchIntervalInBackground: false,
   });
 };
 

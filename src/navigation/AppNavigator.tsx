@@ -10,10 +10,12 @@ import { TestScreen } from "../screens/TestScreen";
 import { OnboardingScreen } from "../screens/OnboardingScreen";
 import { GoalsScreen } from "../screens/GoalsScreen";
 import { GoalTemplateSelectionScreen } from "../screens/GoalTemplateSelectionScreen";
+import { InitialLoadingScreen } from "../screens/InitialLoadingScreen";
 import { colors } from "../constants/colors";
 
 // 네비게이션 타입 정의
 export type RootStackParamList = {
+  InitialLoading: undefined;
   Onboarding: undefined;
   GoalTemplateSelection: undefined;
   Main: undefined;
@@ -108,11 +110,15 @@ export const AppNavigator = () => {
     <SafeAreaView style={{ flex: 1 }}>
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName="Onboarding"
+          initialRouteName="InitialLoading"
           screenOptions={{
             headerShown: false,
           }}
         >
+          <Stack.Screen 
+            name="InitialLoading" 
+            component={InitialLoadingScreen}
+          />
           <Stack.Screen name="Onboarding" component={OnboardingScreen} />
           <Stack.Screen 
             name="GoalTemplateSelection" 
