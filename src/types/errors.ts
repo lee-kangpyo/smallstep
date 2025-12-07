@@ -93,9 +93,9 @@ export const ERROR_MESSAGES = {
     action: '관리자 문의'
   },
   [ErrorCode.VALIDATION_ERROR]: {
-    title: '입력 오류',
-    message: '입력한 정보를 확인해주세요.',
-    action: '수정'
+    title: '데이터 오류',
+    message: '템플릿 데이터에 문제가 있습니다. 관리자에게 문의해주세요.',
+    action: '다시 시도'
   },
   [ErrorCode.NOT_FOUND]: {
     title: '찾을 수 없음',
@@ -157,7 +157,22 @@ export const classifyError = (error: any): AppError => {
       };
     }
     
+    // 422: 데이터 파싱 오류 (Unprocessable Entity)
+    if (status === 422) {
+      return {
+        code: ErrorCode.VALIDATION_ERROR,
+        message: error.response?.data?.detail || error.message,
+        userMessage: error.response?.data?.detail || ERROR_MESSAGES[ErrorCode.VALIDATION_ERROR].message,
+      };
+    }
+    
     if (status >= 500) {
+      return {
+        code: ErrorCode.SERVER_ERROR,
+        message: error.response?.data?.detail || error.message,
+        userMessage: error.response?.data?.detail || ERROR_MESSAGES[ErrorCode.SERVER_ERROR].message,
+      };
+    }
       return {
         code: ErrorCode.SERVER_ERROR,
         message: error.message,

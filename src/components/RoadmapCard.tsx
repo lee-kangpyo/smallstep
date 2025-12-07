@@ -1,16 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Card } from "./Card";
-import { Roadmap, Phase } from "../types";
+import { Roadmap, Phase, ScheduleItem } from "../types";
 import { colors } from "../constants/colors";
 import { typography } from "../constants/typography";
+import { PhaseScheduleModal } from "../screens/GoalTemplateSelectionScreen/components/PhaseScheduleModal";
 
 interface RoadmapCardProps {
   roadmap: Roadmap;
@@ -23,14 +22,27 @@ export const RoadmapCard: React.FC<RoadmapCardProps> = ({
   onPhasePress,
   selectedPhase,
 }) => {
+  const [selectedPhaseForModal, setSelectedPhaseForModal] = useState<Phase | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  
   const totalPhases = roadmap.roadmap.length;
   const totalDuration = roadmap.schedule.length;
 
+  const handleViewSchedule = (phase: Phase) => {
+    setSelectedPhaseForModal(phase);
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    setSelectedPhaseForModal(null);
+  };
+
   return (
-    <Card variant="elevated" padding="large" style={styles.container}>
+    <View style={styles.container}>
       {/* 헤더 */}
       <View style={styles.header}>
-        <Text style={styles.title}>AI 생성 로드맵</Text>
+        <Text style={styles.title}>로드맵</Text>
         <View style={styles.stats}>
           <View style={styles.stat}>
             <Text style={styles.statNumber}>{totalPhases}</Text>
@@ -45,19 +57,14 @@ export const RoadmapCard: React.FC<RoadmapCardProps> = ({
       </View>
 
       {/* 로드맵 단계들 */}
-      <ScrollView
-        style={styles.phasesContainer}
-        showsVerticalScrollIndicator={false}
-      >
+      <View style={styles.phasesContainer}>
         {roadmap.roadmap.map((phase, index) => (
-          <TouchableOpacity
+          <View
             key={phase.phase}
             style={[
               styles.phaseItem,
               selectedPhase === phase.phase && styles.selectedPhase,
             ]}
-            onPress={() => onPhasePress?.(phase)}
-            activeOpacity={0.7}
           >
             {/* 단계 번호 */}
             <View style={styles.phaseNumber}>
@@ -67,7 +74,7 @@ export const RoadmapCard: React.FC<RoadmapCardProps> = ({
             {/* 단계 내용 */}
             <View style={styles.phaseContent}>
               <Text style={styles.phaseTitle}>{phase.phase_title}</Text>
-              <Text style={styles.phaseDescription} numberOfLines={2}>
+              <Text style={styles.phaseDescription}>
                 {phase.phase_description}
               </Text>
 
@@ -75,36 +82,41 @@ export const RoadmapCard: React.FC<RoadmapCardProps> = ({
               {phase.key_milestones.length > 0 && (
                 <View style={styles.milestonesContainer}>
                   <Text style={styles.milestonesLabel}>주요 마일스톤:</Text>
-                  {phase.key_milestones.slice(0, 2).map((milestone, idx) => (
+                  {phase.key_milestones.map((milestone, idx) => (
                     <View key={idx} style={styles.milestoneItem}>
                       <Ionicons
                         name="checkmark-circle"
                         size={12}
                         color={colors.deepMint}
                       />
-                      <Text style={styles.milestoneText} numberOfLines={1}>
+                      <Text style={styles.milestoneText}>
                         {milestone}
                       </Text>
                     </View>
                   ))}
-                  {phase.key_milestones.length > 2 && (
-                    <Text style={styles.moreMilestones}>
-                      +{phase.key_milestones.length - 2}개 더
-                    </Text>
-                  )}
                 </View>
               )}
+
+              {/* 활동 보기 버튼 */}
+              <TouchableOpacity
+                style={styles.viewScheduleButton}
+                onPress={() => handleViewSchedule(phase)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.viewScheduleButtonText}>
+                  활동 {roadmap.schedule.filter(s => s.phase_link === phase.phase).length}개 보기
+                </Text>
+                <Ionicons
+                  name="chevron-forward"
+                  size={16}
+                  color={colors.deepMint}
+                />
+              </TouchableOpacity>
             </View>
 
-            {/* 화살표 아이콘 */}
-            <Ionicons
-              name="chevron-forward"
-              size={20}
-              color={colors.secondaryText}
-            />
-          </TouchableOpacity>
+          </View>
         ))}
-      </ScrollView>
+      </View>
 
       {/* 하단 정보 */}
       <View style={styles.footer}>
@@ -112,13 +124,23 @@ export const RoadmapCard: React.FC<RoadmapCardProps> = ({
           총 {totalDuration}개의 활동으로 구성된 {totalPhases}단계 로드맵입니다
         </Text>
       </View>
-    </Card>
+
+      {/* 스케줄 모달 */}
+      <PhaseScheduleModal
+        visible={modalVisible}
+        phase={selectedPhaseForModal}
+        scheduleItems={roadmap.schedule}
+        onClose={handleCloseModal}
+      />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
+    backgroundColor: colors.white,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
   },
   header: {
     marginBottom: 20,
@@ -155,7 +177,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   phasesContainer: {
-    maxHeight: 400,
+    // 높이 제한 제거 - 전체 내용 표시
   },
   phaseItem: {
     flexDirection: "row",
@@ -220,11 +242,20 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     flex: 1,
   },
-  moreMilestones: {
-    ...typography.caption,
+  viewScheduleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    backgroundColor: colors.lightMint,
+    borderRadius: 8,
+  },
+  viewScheduleButtonText: {
+    ...typography.body,
     color: colors.deepMint,
-    fontStyle: "italic",
-    marginTop: 2,
+    fontWeight: '600',
   },
   footer: {
     marginTop: 16,

@@ -9,7 +9,7 @@ import { ReportScreen } from "../screens/ReportScreen";
 import { TestScreen } from "../screens/TestScreen";
 import { OnboardingScreen } from "../screens/OnboardingScreen";
 import { GoalsScreen } from "../screens/GoalsScreen";
-import { GoalTemplateSelectionScreen } from "../screens/GoalTemplateSelectionScreen";
+import GoalTemplateSelectionScreen from "../screens/GoalTemplateSelectionScreen";
 import { InitialLoadingScreen } from "../screens/InitialLoadingScreen";
 import { colors } from "../constants/colors";
 

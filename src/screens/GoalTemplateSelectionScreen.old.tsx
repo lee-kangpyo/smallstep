@@ -18,6 +18,8 @@ import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
+import { RoadmapCard } from '../components/RoadmapCard';
+import { Roadmap } from '../types';
 
 type GoalTemplateSelectionScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -157,6 +159,15 @@ export const GoalTemplateSelectionScreen: React.FC = () => {
   }
 
   if (templateDetail) {
+    // plan_data에서 roadmap과 schedule 추출
+    const planData = templateDetail.detail?.plan_data;
+    const roadmap: Roadmap | null = planData?.roadmap && planData?.schedule 
+      ? {
+          roadmap: planData.roadmap,
+          schedule: planData.schedule,
+        }
+      : null;
+
     return (
       <SafeAreaView style={styles.container}>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -178,6 +189,13 @@ export const GoalTemplateSelectionScreen: React.FC = () => {
             {loadingDetail && (
               <View style={styles.loadingDetailContainer}>
                 <ActivityIndicator size="small" color={colors.deepMint} />
+              </View>
+            )}
+
+            {/* 전체 커리큘럼 표시 */}
+            {roadmap && !loadingDetail && (
+              <View style={styles.roadmapCardContainer}>
+                <RoadmapCard roadmap={roadmap} />
               </View>
             )}
             
@@ -213,9 +231,9 @@ export const GoalTemplateSelectionScreen: React.FC = () => {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* 헤더 */}
         <View style={styles.header}>
-          <Text style={styles.title}>🎯 목표를 선택해주세요</Text>
+          <Text style={styles.title}>목표를 선택해보세요</Text>
           <Text style={styles.subtitle}>
-            원하는 목표를 선택하면 맞춤형 계획을 제안해드려요
+            원하는 목표를 선택하면 맞춤형 계획을 경험해볼 수 있어요
           </Text>
         </View>
 
@@ -293,10 +311,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   templateCard: {
-    width: '48%',
+    width: '31%',
     backgroundColor: colors.white,
     borderRadius: 12,
-    padding: 16,
+    padding: 12,
     marginBottom: 12,
     borderWidth: 2,
     borderColor: colors.lightBlue,
@@ -314,11 +332,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.lightMint,
   },
   templateText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '500',
     color: colors.primaryText,
-    lineHeight: 20,
-    marginBottom: 8,
+    lineHeight: 16,
+    marginBottom: 6,
   },
   selectedTemplateText: {
     color: colors.deepMint,
@@ -365,5 +383,9 @@ const styles = StyleSheet.create({
   },
   backButton: {
     marginTop: 12,
+  },
+  roadmapCardContainer: {
+    marginTop: 20,
+    marginBottom: 20,
   },
 });

@@ -59,7 +59,16 @@ class ApiService {
         return response;
       },
       async (error: AxiosError) => {
-        // 네트워크 에러 처리
+        // Axios 에러인 경우 (백엔드 응답이 있는 경우)
+        if (error.response) {
+          // HTTP 상태 코드가 있는 경우는 서버 에러
+          const appError = handleApiError(error);
+          console.error('API Response Error:', appError);
+          return Promise.reject(appError);
+        }
+        
+        // 실제 네트워크 에러인 경우만 handleNetworkError 호출
+        // (error.response가 없는 경우: 연결 실패, 타임아웃 등)
         const appError = await handleNetworkError(error);
         console.error('API Response Error:', appError);
         return Promise.reject(appError);

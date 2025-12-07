@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   },
   retryButton: {
     width: "100%",
-  },
+   },
 });
 
 
