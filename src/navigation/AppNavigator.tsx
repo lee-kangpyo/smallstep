@@ -11,6 +11,8 @@ import { OnboardingScreen } from "../screens/OnboardingScreen";
 import { GoalsScreen } from "../screens/GoalsScreen";
 import GoalTemplateSelectionScreen from "../screens/GoalTemplateSelectionScreen";
 import { InitialLoadingScreen } from "../screens/InitialLoadingScreen";
+import CalendarCustomizationScreen from "../screens/CalendarCustomizationScreen";
+import { Roadmap } from "../types";
 import { colors } from "../constants/colors";
 
 // 네비게이션 타입 정의
@@ -18,6 +20,15 @@ export type RootStackParamList = {
   InitialLoading: undefined;
   Onboarding: undefined;
   GoalTemplateSelection: undefined;
+  CalendarCustomization: {
+    templateData: {
+      title: string;
+      description?: string;
+      roadmap: Roadmap;
+      durationWeeks?: number;
+      weeklyFrequency?: number;
+    };
+  };
   Main: undefined;
 };
 
@@ -125,6 +136,14 @@ export const AppNavigator = () => {
             component={GoalTemplateSelectionScreen}
             options={{
               title: '목표 선택',
+              headerShown: true,
+            }}
+          />
+          <Stack.Screen 
+            name="CalendarCustomization" 
+            component={CalendarCustomizationScreen}
+            options={{
+              title: '계획 시작하기',
               headerShown: true,
             }}
           />

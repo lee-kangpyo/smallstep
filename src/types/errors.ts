@@ -173,12 +173,6 @@ export const classifyError = (error: any): AppError => {
         userMessage: error.response?.data?.detail || ERROR_MESSAGES[ErrorCode.SERVER_ERROR].message,
       };
     }
-      return {
-        code: ErrorCode.SERVER_ERROR,
-        message: error.message,
-        userMessage: ERROR_MESSAGES[ErrorCode.SERVER_ERROR].message,
-      };
-    }
     
     if (status >= 400) {
       return {

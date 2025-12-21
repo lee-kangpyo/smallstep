@@ -23,6 +23,12 @@ export interface ScheduleItem {
   description: string;
 }
 
+// ===== 주간 패턴 설정 =====
+export interface WeeklyPattern {
+  frequency: number;      // 주 몇 회 (예: 3)
+  selectedDays: number[];  // 선택된 요일 [1,3,5] = 월,수,금 (1=월, 2=화, ..., 7=일)
+}
+
 // ===== 다중 목표 지원 구조 =====
 export interface User {
   id: string;
@@ -44,6 +50,8 @@ export interface Goal {
   createdAt: Date;
   roadmap: Roadmap;
   progress: GoalProgress;
+  startDate: string;           // ISO date string: "2024-01-15"
+  weeklyPattern: WeeklyPattern; // 주간 패턴 정보
 }
 
 export interface GoalProgress {
@@ -121,7 +129,11 @@ export const isGoal = (obj: any): obj is Goal => {
     typeof obj.priority === "number" &&
     obj.createdAt instanceof Date &&
     isRoadmap(obj.roadmap) &&
-    isGoalProgress(obj.progress)
+    isGoalProgress(obj.progress) &&
+    typeof obj.startDate === "string" &&
+    obj.weeklyPattern &&
+    typeof obj.weeklyPattern.frequency === "number" &&
+    Array.isArray(obj.weeklyPattern.selectedDays)
   );
 };
 

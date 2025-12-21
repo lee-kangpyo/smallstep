@@ -77,18 +77,22 @@ export const GoalTemplateSelectionScreen: React.FC = () => {
   // 비즈니스 로직: 계획 시작
   const handleStartWithTemplate = () => {
     if (selectedTemplate && templateDetail) {
-      // TODO: 로그인 화면으로 이동 또는 계획 확인 화면으로 이동
-      Alert.alert(
-        '로그인 필요',
-        '계획을 저장하려면 로그인이 필요해요.',
-        [
-          { text: '취소', style: 'cancel' },
-          { text: '로그인', onPress: () => {
-            // TODO: 로그인 화면으로 이동
-            console.log('로그인 화면으로 이동');
-          }}
-        ]
-      );
+      const roadmap = getRoadmap();
+      if (!roadmap) {
+        Alert.alert('오류', '로드맵 데이터를 불러올 수 없습니다.');
+        return;
+      }
+
+      // CalendarCustomization 화면으로 이동
+      navigation.navigate('CalendarCustomization', {
+        templateData: {
+          title: selectedTemplate.goal_text,
+          description: templateDetail.detail?.goal || '',
+          roadmap: roadmap,
+          durationWeeks: templateDetail.detail?.duration_weeks,
+          weeklyFrequency: templateDetail.detail?.weekly_frequency,
+        },
+      });
     }
   };
 
