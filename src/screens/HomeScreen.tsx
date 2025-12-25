@@ -5,8 +5,11 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
 import { CurrentPhaseCard } from "../components/CurrentPhaseCard";
 import { ActiveGoalSelector } from "../components/ActiveGoalSelector";
 import { ScheduleItemCard } from "../components/ScheduleItemCard";
@@ -24,8 +27,14 @@ import {
 } from "../data/mockData";
 import { colors } from "../constants/colors";
 import { typography } from "../constants/typography";
+import { clearAllData } from "../services/storage/goalStorage";
+import { RootStackParamList } from "../navigation/AppNavigator";
+
+type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
 export const HomeScreen: React.FC = () => {
+  const navigation = useNavigation<HomeScreenNavigationProp>();
+  
   // 전역 상태 사용
   const { goals, activeGoalId, setActiveGoal, getActiveGoal } = useGoalStore();
 
@@ -184,6 +193,36 @@ export const HomeScreen: React.FC = () => {
     setShowLevelUp(false);
   };
 
+  // 테스트용 초기화 버튼 핸들러
+  const handleReset = () => {
+    Alert.alert(
+      "데이터 초기화",
+      "모든 데이터를 삭제하고 초기 화면으로 이동하시겠습니까?",
+      [
+        {
+          text: "취소",
+          style: "cancel",
+        },
+        {
+          text: "초기화",
+          style: "destructive",
+          onPress: async () => {
+            const success = await clearAllData();
+            if (success) {
+              // InitialLoading 화면으로 이동
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "InitialLoading" }],
+              });
+            } else {
+              Alert.alert("오류", "데이터 초기화에 실패했습니다.");
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -192,15 +231,26 @@ export const HomeScreen: React.FC = () => {
       >
         {/* 헤더 */}
         <View style={styles.header}>
-          <Text style={styles.greeting}>안녕하세요, {userData.name}님! 👋</Text>
-          <Text style={styles.date}>
-            {new Date().toLocaleDateString("ko-KR", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-              weekday: "long",
-            })}
-          </Text>
+          <View style={styles.headerTop}>
+            <View style={styles.headerTextContainer}>
+              <Text style={styles.greeting}>안녕하세요, {userData.name}님! 👋</Text>
+              <Text style={styles.date}>
+                {new Date().toLocaleDateString("ko-KR", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  weekday: "long",
+                })}
+              </Text>
+            </View>
+            {/* 테스트용 초기화 버튼 */}
+            <TouchableOpacity
+              style={styles.resetButton}
+              onPress={handleReset}
+            >
+              <Text style={styles.resetButtonText}>초기화</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* 연속 성공일 표시 */}
@@ -368,6 +418,14 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 10,
   },
+  headerTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  headerTextContainer: {
+    flex: 1,
+  },
   greeting: {
     ...typography.h1,
     color: colors.primaryText,
@@ -376,6 +434,18 @@ const styles = StyleSheet.create({
   date: {
     ...typography.body,
     color: colors.secondaryText,
+  },
+  resetButton: {
+    backgroundColor: colors.error,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginLeft: 12,
+  },
+  resetButtonText: {
+    ...typography.body,
+    color: colors.white,
+    fontWeight: "600",
   },
   streakContainer: {
     backgroundColor: colors.white,

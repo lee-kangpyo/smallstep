@@ -1,5 +1,5 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Goal } from '../../types';
+import { storage } from './storageAdapter';
 
 const GOALS_STORAGE_KEY = '@smallstep:goals';
 const ACTIVE_GOAL_ID_KEY = '@smallstep:activeGoalId';
@@ -17,7 +17,7 @@ interface UserInfo {
  */
 export const getGoals = async (): Promise<Goal[]> => {
   try {
-    const data = await AsyncStorage.getItem(GOALS_STORAGE_KEY);
+    const data = await storage.getItem(GOALS_STORAGE_KEY);
     if (!data) return [];
     
     const goals = JSON.parse(data);
@@ -54,7 +54,7 @@ export const saveGoal = async (goal: Goal): Promise<boolean> => {
       goals.push(goal);
     }
     
-    await AsyncStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify(goals));
+    await storage.setItem(GOALS_STORAGE_KEY, JSON.stringify(goals));
     return true;
   } catch (error) {
     console.error('목표 저장 실패:', error);
@@ -70,12 +70,12 @@ export const deleteGoal = async (goalId: string): Promise<boolean> => {
     const goals = await getGoals();
     const filteredGoals = goals.filter((g) => g.id !== goalId);
     
-    await AsyncStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify(filteredGoals));
+    await storage.setItem(GOALS_STORAGE_KEY, JSON.stringify(filteredGoals));
     
     // 삭제한 목표가 활성 목표였다면 활성 목표 해제
     const activeGoalId = await getActiveGoalId();
     if (activeGoalId === goalId) {
-      await AsyncStorage.removeItem(ACTIVE_GOAL_ID_KEY);
+      await storage.removeItem(ACTIVE_GOAL_ID_KEY);
     }
     
     return true;
@@ -100,7 +100,7 @@ export const getGoalCount = async (): Promise<number> => {
  */
 export const getActiveGoalId = async (): Promise<string | null> => {
   try {
-    return await AsyncStorage.getItem(ACTIVE_GOAL_ID_KEY);
+    return await storage.getItem(ACTIVE_GOAL_ID_KEY);
   } catch (error) {
     console.error('활성 목표 ID 조회 실패:', error);
     return null;
@@ -113,9 +113,9 @@ export const getActiveGoalId = async (): Promise<string | null> => {
 export const setActiveGoalId = async (goalId: string | null): Promise<boolean> => {
   try {
     if (goalId) {
-      await AsyncStorage.setItem(ACTIVE_GOAL_ID_KEY, goalId);
+      await storage.setItem(ACTIVE_GOAL_ID_KEY, goalId);
     } else {
-      await AsyncStorage.removeItem(ACTIVE_GOAL_ID_KEY);
+      await storage.removeItem(ACTIVE_GOAL_ID_KEY);
     }
     return true;
   } catch (error) {
@@ -147,7 +147,7 @@ export const getActiveGoal = async (): Promise<Goal | null> => {
  */
 export const getUserInfo = async (): Promise<UserInfo> => {
   try {
-    const data = await AsyncStorage.getItem(USER_INFO_KEY);
+    const data = await storage.getItem(USER_INFO_KEY);
     if (!data) {
       // 기본값: 비회원
       return { isGuest: true };
@@ -164,10 +164,29 @@ export const getUserInfo = async (): Promise<UserInfo> => {
  */
 export const saveUserInfo = async (userInfo: UserInfo): Promise<boolean> => {
   try {
-    await AsyncStorage.setItem(USER_INFO_KEY, JSON.stringify(userInfo));
+    await storage.setItem(USER_INFO_KEY, JSON.stringify(userInfo));
     return true;
   } catch (error) {
     console.error('사용자 정보 저장 실패:', error);
+    return false;
+  }
+};
+
+// ===== 테스트용 초기화 =====
+
+/**
+ * 모든 데이터 초기화 (테스트용)
+ * 목표, 활성 목표 ID, 사용자 정보 모두 삭제
+ */
+export const clearAllData = async (): Promise<boolean> => {
+  try {
+    await storage.removeItem(GOALS_STORAGE_KEY);
+    await storage.removeItem(ACTIVE_GOAL_ID_KEY);
+    await storage.removeItem(USER_INFO_KEY);
+    console.log('✅ 모든 데이터 초기화 완료');
+    return true;
+  } catch (error) {
+    console.error('데이터 초기화 실패:', error);
     return false;
   }
 };

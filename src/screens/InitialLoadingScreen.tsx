@@ -13,6 +13,8 @@ import { Button } from "../components/Button";
 import { colors } from "../constants/colors";
 import { typography } from "../constants/typography";
 import { RootStackParamList } from "../navigation/AppNavigator";
+import { getGoals, getActiveGoalId, getUserInfo } from "../services/storage/goalStorage";
+import { storage } from "../services/storage/storageAdapter";
 
 type InitialLoadingScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -23,14 +25,75 @@ export const InitialLoadingScreen: React.FC = () => {
   const navigation = useNavigation<InitialLoadingScreenNavigationProp>();
   const { data, isLoading, error, refetch, isError } = useHealthCheck();
 
+  // Storage 데이터 확인 및 로그 출력
+  useEffect(() => {
+    const checkAsyncStorage = async () => {
+      try {
+        console.log('=== Storage 데이터 확인 시작 ===');
+        
+        // 모든 키 조회
+        const allKeys = await storage.getAllKeys();
+        console.log('🔑 Storage에 저장된 모든 키:', allKeys);
+        
+        // SmallStep 관련 키만 필터링
+        const smallstepKeys = allKeys.filter(key => key.includes('smallstep'));
+        console.log('📦 SmallStep 관련 키:', smallstepKeys);
+        
+        // 각 키의 값 확인
+        for (const key of smallstepKeys) {
+          const value = await storage.getItem(key);
+          try {
+            const parsed = value ? JSON.parse(value) : null;
+            console.log(`📝 ${key}:`, parsed);
+          } catch (e) {
+            console.log(`📝 ${key}:`, value);
+          }
+        }
+        
+        // 목표 목록 조회
+        const goals = await getGoals();
+        console.log('📋 저장된 목표 개수:', goals.length);
+        if (goals.length > 0) {
+          console.log('📋 목표 목록:', JSON.stringify(goals, null, 2));
+        } else {
+          console.log('📋 저장된 목표가 없습니다.');
+        }
+        
+        // 활성 목표 ID 조회
+        const activeGoalId = await getActiveGoalId();
+        console.log('🎯 활성 목표 ID:', activeGoalId || '없음');
+        
+        // 사용자 정보 조회
+        const userInfo = await getUserInfo();
+        console.log('👤 사용자 정보:', JSON.stringify(userInfo, null, 2));
+        
+        console.log('=== Storage 데이터 확인 완료 ===');
+      } catch (error) {
+        console.error('❌ Storage 데이터 확인 실패:', error);
+      }
+    };
+
+    checkAsyncStorage();
+  }, []);
+
   // 헬스체크 성공 시 적절한 화면으로 이동
   useEffect(() => {
-    if (data && !isLoading) {
-      // 헬스체크 성공
-      // TODO: 첫 실행 여부 확인 후 온보딩 또는 메인 화면으로 이동
-      // 일단 온보딩 화면으로 이동
-      navigation.replace("Onboarding");
-    }
+    const navigateToAppropriateScreen = async () => {
+      if (data && !isLoading) {
+        // 헬스체크 성공
+        // 저장된 목표가 있으면 메인 화면으로, 없으면 온보딩으로 이동
+        const goals = await getGoals();
+        if (goals.length > 0) {
+          // 목표가 있으면 메인 화면으로 이동 (게스트든 회원이든)
+          navigation.replace("Main");
+        } else {
+          // 목표가 없으면 온보딩 화면으로 이동
+          navigation.replace("Onboarding");
+        }
+      }
+    };
+
+    navigateToAppropriateScreen();
   }, [data, isLoading, navigation]);
 
   // 에러 발생 시 재시도 버튼 표시
