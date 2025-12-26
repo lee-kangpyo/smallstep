@@ -1,4 +1,4 @@
-import { ScheduleItem, WeeklyPattern } from '../types';
+import { ScheduleItem, WeeklyPattern, Goal } from '../types';
 
 /**
  * 시작일 기준으로 주차 계산
@@ -8,9 +8,16 @@ import { ScheduleItem, WeeklyPattern } from '../types';
  */
 export const getWeekNumberFromStart = (startDate: string, targetDate: Date): number => {
   const start = new Date(startDate);
-  const diffTime = targetDate.getTime() - start.getTime();
+  start.setHours(0, 0, 0, 0);
+  const target = new Date(targetDate);
+  target.setHours(0, 0, 0, 0);
+  
+  const diffTime = target.getTime() - start.getTime();
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  return Math.floor(diffDays / 7) + 1;
+  const week = Math.floor(diffDays / 7) + 1;
+  
+  // 음수일 경우 1주차로 처리 (시작일 이전)
+  return diffDays < 0 ? 1 : week;
 };
 
 /**
@@ -93,14 +100,30 @@ export const regenerateSchedule = (
     const sortedWeekItems = weekItems.sort((a, b) => a.day - b.day);
     
     // 선택된 요일 순서대로 재배치
+    // selectedDays의 모든 요일에 대해 활동 생성
     selectedDays.forEach((selectedDay, index) => {
-      const originalItem = sortedWeekItems[index % sortedWeekItems.length];
+      // 원본 항목을 순환하여 재사용 (원본이 부족하면 반복)
+      // 원본이 없으면 기본 활동 생성
+      const originalItem = sortedWeekItems.length > 0 
+        ? sortedWeekItems[index % sortedWeekItems.length]
+        : null;
       
       if (originalItem) {
+        // 원본 항목이 있으면 재사용
         regeneratedSchedule.push({
           ...originalItem,
           week,
           day: selectedDay,
+        });
+      } else if (sortedWeekItems.length === 0 && week === 1) {
+        // 첫째 주에 원본이 없으면 기본 활동 생성 (fallback)
+        regeneratedSchedule.push({
+          week,
+          day: selectedDay,
+          phase_link: 1,
+          activity_type: '활동',
+          title: `Week ${week} Day ${selectedDay} 활동`,
+          description: '',
         });
       }
     });
@@ -110,30 +133,37 @@ export const regenerateSchedule = (
 };
 
 /**
- * 첫째 주 처리: 이미 지난 날짜 제외
+ * 첫째 주 처리: 시작일이 속한 주의 모든 요일 포함, 시작일 이전 주의 날짜만 제외
  * @param schedule schedule 배열
  * @param startDate 시작일 (ISO date string)
- * @returns 첫째 주에서 지난 날짜가 제외된 schedule
+ * @returns 첫째 주에서 시작일이 속한 주의 요일들은 모두 포함된 schedule
  */
 export const filterPastDatesInFirstWeek = (
   schedule: ScheduleItem[],
   startDate: string
 ): ScheduleItem[] => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  
   const start = new Date(startDate);
   start.setHours(0, 0, 0, 0);
+  const startDayOfWeek = getDayOfWeek(start); // 시작일의 요일 (1=월, 7=일)
   
   return schedule.filter((item) => {
     // 첫째 주가 아니면 그대로 통과
     if (item.week !== 1) return true;
     
-    // 첫째 주인 경우: 해당 날짜가 오늘 이후인지 확인
+    // 첫째 주인 경우: 해당 날짜 계산
     const itemDate = getDateFromWeekAndDay(startDate, item.week, item.day);
     itemDate.setHours(0, 0, 0, 0);
     
-    return itemDate >= today;
+    // 시작일이 속한 주의 요일들은 모두 포함
+    // 시작일의 요일보다 크거나 같으면 같은 주, 작으면 다음 주
+    // 같은 주면 포함, 다음 주면 시작일 이후인지 확인
+    if (item.day >= startDayOfWeek) {
+      // 시작일과 같은 주의 요일이면 포함
+      return true;
+    } else {
+      // 다음 주의 요일이면 시작일 이후인지 확인
+      return itemDate >= start;
+    }
   });
 };
 
@@ -165,5 +195,109 @@ export const isSameDay = (date1: Date, date2: Date): boolean => {
     date1.getMonth() === date2.getMonth() &&
     date1.getDate() === date2.getDate()
   );
+};
+
+/**
+ * 특정 날짜에 해당하는 활동 찾기
+ * @param schedule schedule 배열
+ * @param startDate 시작일 (ISO date string)
+ * @param targetDate 찾을 날짜
+ * @returns 해당 날짜의 활동들
+ */
+export const getActivitiesForDate = (
+  schedule: ScheduleItem[],
+  startDate: string,
+  targetDate: Date
+): ScheduleItem[] => {
+  const targetWeek = getWeekNumberFromStart(startDate, targetDate);
+  const targetDay = getDayOfWeek(targetDate);
+  
+  console.log('[getActivitiesForDate]', {
+    startDate,
+    targetDate: targetDate.toISOString().split('T')[0],
+    targetWeek,
+    targetDay,
+    scheduleLength: schedule.length,
+    scheduleSample: schedule.slice(0, 3).map(s => ({ week: s.week, day: s.day }))
+  });
+  
+  const matched = schedule.filter(
+    (item) => item.week === targetWeek && item.day === targetDay
+  );
+  
+  console.log('[getActivitiesForDate] matched:', matched.length);
+  
+  return matched;
+};
+
+/**
+ * 여러 목표에서 오늘의 활동 가져오기
+ * @param goals 목표 배열
+ * @param targetDate 찾을 날짜 (기본값: 오늘)
+ * @returns 오늘의 활동들 (goalId 포함)
+ */
+export const getTodayActivitiesFromGoals = (
+  goals: Array<Goal & { id: string }>,
+  targetDate: Date = new Date()
+): Array<ScheduleItem & { goalId: string; goalTitle: string }> => {
+  const activities: Array<ScheduleItem & { goalId: string; goalTitle: string }> = [];
+  
+  goals.forEach((goal) => {
+    if (!goal.startDate || !goal.roadmap?.schedule) return;
+    
+    // weeklyPattern이 있으면 동적으로 활동 생성
+    if (goal.weeklyPattern && goal.weeklyPattern.selectedDays) {
+      const targetWeek = getWeekNumberFromStart(goal.startDate, targetDate);
+      const targetDay = getDayOfWeek(targetDate);
+      
+      // 선택된 요일에 포함되는지 확인
+      if (goal.weeklyPattern.selectedDays.includes(targetDay)) {
+        // 해당 주차의 schedule에서 활동 찾기
+        const weekActivities = goal.roadmap.schedule.filter(
+          (item) => item.week === targetWeek
+        );
+        
+        if (weekActivities.length > 0) {
+          // 해당 주차의 활동이 있으면 재사용
+          const activity = weekActivities[0]; // 첫 번째 활동 재사용
+          activities.push({
+            ...activity,
+            day: targetDay, // 요일 업데이트
+            goalId: goal.id,
+            goalTitle: goal.title,
+          });
+        } else {
+          // 해당 주차의 활동이 없으면 기본 활동 생성
+          activities.push({
+            week: targetWeek,
+            day: targetDay,
+            phase_link: 1,
+            activity_type: '활동',
+            title: `${goal.title} - Week ${targetWeek} Day ${targetDay}`,
+            description: '',
+            goalId: goal.id,
+            goalTitle: goal.title,
+          });
+        }
+      }
+    } else {
+      // weeklyPattern이 없으면 기존 방식 사용
+      const todayActivities = getActivitiesForDate(
+        goal.roadmap.schedule,
+        goal.startDate,
+        targetDate
+      );
+      
+      todayActivities.forEach((activity) => {
+        activities.push({
+          ...activity,
+          goalId: goal.id,
+          goalTitle: goal.title,
+        });
+      });
+    }
+  });
+  
+  return activities;
 };
 

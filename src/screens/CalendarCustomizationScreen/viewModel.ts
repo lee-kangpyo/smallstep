@@ -36,12 +36,20 @@ export const useCalendarCustomizationViewModel = ({
 
   const [startDate, setStartDate] = useState<string>(getDefaultStartDate);
   
+  // 템플릿의 첫째 주(week 1) 요일 추출
+  const getInitialSelectedDays = useMemo(() => {
+    const week1Items = templateData.roadmap.schedule.filter(item => item.week === 1);
+    const days = week1Items.map(item => item.day);
+    // 중복 제거 및 정렬
+    return [...new Set(days)].sort((a, b) => a - b);
+  }, [templateData.roadmap.schedule]);
+  
   // 템플릿의 주 횟수를 초기값으로 설정
   const initialFrequency = templateData.weeklyFrequency || 3;
   const [weeklyPattern, setWeeklyPattern] = useState<WeeklyPattern | null>(
     initialFrequency ? {
       frequency: initialFrequency,
-      selectedDays: [1, 3, 5], // 기본값: 월, 수, 금
+      selectedDays: getInitialSelectedDays, // 템플릿의 첫째 주 요일로 초기화
     } : null
   );
   const [isSaving, setIsSaving] = useState(false);

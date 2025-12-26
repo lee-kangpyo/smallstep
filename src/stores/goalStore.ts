@@ -1,78 +1,91 @@
 import { create } from "zustand";
 import { Goal } from "../types";
-import { mockUserWithMultipleGoals } from "../data/mockData";
+import { getGoals, saveGoal, deleteGoal as deleteGoalStorage } from "../services/storage/goalStorage";
 
 interface GoalState {
   goals: Goal[];
-  activeGoalId: string | null;
   selectedGoalId: string | null;
+  isLoading: boolean;
 
   // Actions
+  loadGoals: () => Promise<void>;
   setGoals: (goals: Goal[]) => void;
-  addGoal: (goal: Goal) => void;
-  updateGoal: (id: string, updates: Partial<Goal>) => void;
-  deleteGoal: (id: string) => void;
-  setActiveGoal: (id: string | null) => void;
+  addGoal: (goal: Goal) => Promise<void>;
+  updateGoal: (id: string, updates: Partial<Goal>) => Promise<void>;
+  deleteGoal: (id: string) => Promise<void>;
   setSelectedGoal: (id: string | null) => void;
 
   // Computed
-  getActiveGoal: () => Goal | null;
   getSelectedGoal: () => Goal | null;
+  getActiveGoals: () => Goal[];
 }
 
 export const useGoalStore = create<GoalState>((set, get) => ({
   // Initial state
-  goals: mockUserWithMultipleGoals.goals,
-  activeGoalId:
-    mockUserWithMultipleGoals.goals.find((g) => g.status === "active")?.id ||
-    null,
+  goals: [],
   selectedGoalId: null,
+  isLoading: false,
 
   // Actions
+  loadGoals: async () => {
+    set({ isLoading: true });
+    try {
+      const goals = await getGoals();
+      set({ goals, isLoading: false });
+    } catch (error) {
+      console.error("목표 로드 실패:", error);
+      set({ isLoading: false });
+    }
+  },
+
   setGoals: (goals) => set({ goals }),
 
-  addGoal: (goal) =>
-    set((state) => ({
-      goals: [...state.goals, goal],
-    })),
+  addGoal: async (goal) => {
+    try {
+      await saveGoal(goal);
+      const goals = await getGoals();
+      set({ goals });
+    } catch (error) {
+      console.error("목표 추가 실패:", error);
+    }
+  },
 
-  updateGoal: (id, updates) =>
-    set((state) => ({
-      goals: state.goals.map((goal) =>
-        goal.id === id ? { ...goal, ...updates } : goal
-      ),
-    })),
+  updateGoal: async (id, updates) => {
+    try {
+      const state = get();
+      const goal = state.goals.find((g) => g.id === id);
+      if (!goal) return;
 
-  deleteGoal: (id) =>
-    set((state) => {
-      const newGoals = state.goals.filter((goal) => goal.id !== id);
-      let newActiveGoalId = state.activeGoalId;
+      const updatedGoal = { ...goal, ...updates };
+      await saveGoal(updatedGoal);
+      const goals = await getGoals();
+      set({ goals });
+    } catch (error) {
+      console.error("목표 업데이트 실패:", error);
+    }
+  },
 
-      // 삭제된 목표가 활성 목표였다면 첫 번째 목표를 활성으로 설정
-      if (state.activeGoalId === id && newGoals.length > 0) {
-        newActiveGoalId = newGoals[0].id;
-      } else if (newGoals.length === 0) {
-        newActiveGoalId = null;
-      }
-
-      return {
-        goals: newGoals,
-        activeGoalId: newActiveGoalId,
-      };
-    }),
-
-  setActiveGoal: (id) => set({ activeGoalId: id }),
+  deleteGoal: async (id) => {
+    try {
+      await deleteGoalStorage(id);
+      const goals = await getGoals();
+      set({ goals });
+    } catch (error) {
+      console.error("목표 삭제 실패:", error);
+    }
+  },
 
   setSelectedGoal: (id) => set({ selectedGoalId: id }),
 
   // Computed
-  getActiveGoal: () => {
-    const state = get();
-    return state.goals.find((goal) => goal.id === state.activeGoalId) || null;
-  },
-
   getSelectedGoal: () => {
     const state = get();
     return state.goals.find((goal) => goal.id === state.selectedGoalId) || null;
+  },
+
+  getActiveGoals: () => {
+    const state = get();
+    // @smallstep:goals에 저장된 모든 목표가 활성 목표
+    return state.goals;
   },
 }));

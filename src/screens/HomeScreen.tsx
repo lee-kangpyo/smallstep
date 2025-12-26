@@ -243,13 +243,21 @@ export const HomeScreen: React.FC = () => {
                 })}
               </Text>
             </View>
-            {/* 테스트용 초기화 버튼 */}
-            <TouchableOpacity
-              style={styles.resetButton}
-              onPress={handleReset}
-            >
-              <Text style={styles.resetButtonText}>초기화</Text>
-            </TouchableOpacity>
+            {/* 테스트용 버튼들 */}
+            <View style={styles.testButtonsContainer}>
+              <TouchableOpacity
+                style={styles.resetButton}
+                onPress={handleReset}
+              >
+                <Text style={styles.resetButtonText}>초기화</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.goalsButton}
+                onPress={() => navigation.navigate("GoalTemplateSelection")}
+              >
+                <Text style={styles.goalsButtonText}>목표 선택</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
 
@@ -435,14 +443,29 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.secondaryText,
   },
+  testButtonsContainer: {
+    flexDirection: "row",
+    gap: 8,
+    marginLeft: 12,
+  },
   resetButton: {
     backgroundColor: colors.error,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
-    marginLeft: 12,
   },
   resetButtonText: {
+    ...typography.body,
+    color: colors.white,
+    fontWeight: "600",
+  },
+  goalsButton: {
+    backgroundColor: colors.deepMint,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  goalsButtonText: {
     ...typography.body,
     color: colors.white,
     fontWeight: "600",
