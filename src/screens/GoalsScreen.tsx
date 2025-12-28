@@ -11,8 +11,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { GoalCard } from "../components/GoalCard";
 import { GoalModal } from "../components/GoalModal";
+import { ActivityDetailModal } from "../components/ActivityDetailModal";
 import { Button } from "../components/Button";
-import { Goal } from "../types";
+import { Goal, ScheduleItem } from "../types";
 import { colors } from "../constants/colors";
 import { typography } from "../constants/typography";
 import { useGoalStore } from "../stores";
@@ -38,6 +39,9 @@ export const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [activityModalVisible, setActivityModalVisible] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState<(ScheduleItem & { goalId: string; goalTitle: string }) | null>(null);
+  const [completedActivities, setCompletedActivities] = useState<Set<string>>(new Set());
 
   // 목표 로드
   useEffect(() => {
@@ -50,21 +54,6 @@ export const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
   
   // 선택된 날짜의 활동 가져오기
   const selectedDateActivities = getTodayActivitiesFromGoals(activeGoals, selectedDate);
-  
-  // 디버깅: 선택된 날짜와 목표 정보 로그
-  useEffect(() => {
-    console.log('[GoalsScreen] 선택된 날짜:', selectedDate.toISOString().split('T')[0]);
-    console.log('[GoalsScreen] 활성 목표 개수:', activeGoals.length);
-    activeGoals.forEach(goal => {
-      console.log('[GoalsScreen] 목표:', goal.title, {
-        startDate: goal.startDate,
-        weeklyPattern: goal.weeklyPattern,
-        scheduleLength: goal.roadmap?.schedule?.length || 0,
-        scheduleSample: goal.roadmap?.schedule?.slice(0, 5).map(s => ({ week: s.week, day: s.day }))
-      });
-    });
-    console.log('[GoalsScreen] 선택된 날짜 활동 개수:', selectedDateActivities.length);
-  }, [selectedDate, activeGoals, selectedDateActivities.length]);
 
   const handleGoalPress = (goal: Goal) => {
     // 홈 화면으로 이동하면서 선택된 목표 전달
@@ -224,22 +213,38 @@ export const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
     return (
       <View style={styles.todayActivitiesContainer}>
         <Text style={styles.sectionTitle}>{dateTitle}</Text>
-        {selectedDateActivities.map((activity, index) => (
-          <View key={`${activity.goalId}-${activity.week}-${activity.day}-${index}`} style={styles.activityItem}>
-            <View style={styles.activityHeader}>
-              <Text style={styles.activityGoalTitle}>{activity.goalTitle}</Text>
-              <Text style={styles.activityWeekDay}>
-                {activity.week}주차, {dayNameMap[activity.day]}요일
-              </Text>
-            </View>
-            <Text style={styles.activityTitle}>{activity.title}</Text>
-            {activity.description && (
-              <Text style={styles.activityDescription} numberOfLines={2}>
-                {activity.description}
-              </Text>
-            )}
-          </View>
-        ))}
+        {selectedDateActivities.map((activity, index) => {
+          const activityKey = `${activity.goalId}-${activity.week}-${activity.day}`;
+          const isCompleted = completedActivities.has(activityKey);
+          
+          return (
+            <TouchableOpacity
+              key={activityKey}
+              style={styles.activityItem}
+              onPress={() => {
+                setSelectedActivity(activity);
+                setActivityModalVisible(true);
+              }}
+              activeOpacity={0.7}
+            >
+              <View style={styles.activityHeader}>
+                <Text style={styles.activityGoalTitle}>{activity.goalTitle}</Text>
+                <Text style={styles.activityWeekDay}>
+                  {activity.week}주차, {dayNameMap[activity.day]}요일
+                </Text>
+              </View>
+              <View style={styles.activityContent}>
+                <Text style={styles.activityTitle}>{activity.title}</Text>
+                {isCompleted && (
+                  <View style={styles.completedBadge}>
+                    <Ionicons name="checkmark-circle" size={16} color={colors.success} />
+                    <Text style={styles.completedText}>완료</Text>
+                  </View>
+                )}
+              </View>
+            </TouchableOpacity>
+          );
+        })}
       </View>
     );
   };
@@ -315,6 +320,32 @@ export const GoalsScreen: React.FC<GoalsScreenProps> = ({ navigation }) => {
         goal={editingGoal}
         onClose={handleCloseModal}
         onSave={handleSaveGoal}
+      />
+
+      {/* 활동 상세 모달 */}
+      <ActivityDetailModal
+        visible={activityModalVisible}
+        activity={selectedActivity}
+        isCompleted={selectedActivity ? completedActivities.has(`${selectedActivity.goalId}-${selectedActivity.week}-${selectedActivity.day}`) : false}
+        onClose={() => {
+          setActivityModalVisible(false);
+          setSelectedActivity(null);
+        }}
+        onComplete={(completed) => {
+          if (selectedActivity) {
+            const activityKey = `${selectedActivity.goalId}-${selectedActivity.week}-${selectedActivity.day}`;
+            setCompletedActivities((prev) => {
+              const newSet = new Set(prev);
+              if (completed) {
+                newSet.add(activityKey);
+              } else {
+                newSet.delete(activityKey);
+              }
+              return newSet;
+            });
+            // TODO: 완료 상태를 로컬 스토리지나 서버에 저장
+          }
+        }}
       />
     </SafeAreaView>
   );
@@ -443,15 +474,32 @@ const styles = StyleSheet.create({
     color: colors.secondaryText,
     fontWeight: "500",
   },
+  activityContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   activityTitle: {
     ...typography.h4,
     color: colors.primaryText,
     fontWeight: "600",
-    marginBottom: 4,
+    flex: 1,
   },
   activityDescription: {
     ...typography.body,
     color: colors.secondaryText,
+    marginBottom: 8,
+  },
+  completedBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginLeft: 8,
+  },
+  completedText: {
+    ...typography.caption,
+    color: colors.success,
+    fontWeight: "600",
   },
   goalsSection: {
     paddingHorizontal: 20,

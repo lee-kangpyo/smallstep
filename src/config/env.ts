@@ -1,6 +1,3 @@
-import { API_BASE_URL, ENVIRONMENT, DEBUG } from '@env';
-
-
 // 환경 변수 설정
 interface Environment {
   API_BASE_URL: string;
@@ -8,23 +5,21 @@ interface Environment {
   DEBUG: boolean;
 }
 
-// 환경 변수 읽어오기 (로컬 .env + EAS Build 환경 변수)
+// 환경 변수 읽어오기 (Expo의 EXPO_PUBLIC_ 접두사 사용)
 const getEnvironmentFromEnv = (): Environment => {
-  // .env 파일에서 환경 변수 읽기
-  // EAS Build 시에는 빌드 환경 변수가 주입됨
-  
-  console.log('[env.ts] @env에서 읽은 값:');
-  console.log('  API_BASE_URL:', API_BASE_URL);
-  console.log('  ENVIRONMENT:', ENVIRONMENT);
-  console.log('  DEBUG:', DEBUG);
-  
   const result = {
-    API_BASE_URL: API_BASE_URL!,
-    ENVIRONMENT: (ENVIRONMENT as 'development' | 'production' | 'staging') || 'development',
-    DEBUG: DEBUG === 'true' || __DEV__,
+    API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL || '',
+    ENVIRONMENT: (process.env.EXPO_PUBLIC_ENVIRONMENT as 'development' | 'production' | 'staging') || 'development',
+    DEBUG: process.env.EXPO_PUBLIC_DEBUG === 'true' || __DEV__,
   };
   
-  console.log('[env.ts] 최종 반환값 API_BASE_URL:', result.API_BASE_URL);
+  if (__DEV__) {
+    console.log('[env.ts] process.env에서 읽은 값:');
+    console.log('  EXPO_PUBLIC_API_BASE_URL:', process.env.EXPO_PUBLIC_API_BASE_URL);
+    console.log('  EXPO_PUBLIC_ENVIRONMENT:', process.env.EXPO_PUBLIC_ENVIRONMENT);
+    console.log('  EXPO_PUBLIC_DEBUG:', process.env.EXPO_PUBLIC_DEBUG);
+    console.log('[env.ts] 최종 반환값 API_BASE_URL:', result.API_BASE_URL);
+  }
   
   return result;
 };
@@ -58,9 +53,9 @@ export const logEnvironmentInfo = () => {
     console.log('🌍 Environment Info:', getEnvironmentInfo());
     console.log('⚙️ Config:', config);
     console.log('🔧 Process Env:', {
-      API_BASE_URL: process.env.API_BASE_URL,
-      ENVIRONMENT: process.env.ENVIRONMENT,
-      DEBUG: process.env.DEBUG,
+      EXPO_PUBLIC_API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL,
+      EXPO_PUBLIC_ENVIRONMENT: process.env.EXPO_PUBLIC_ENVIRONMENT,
+      EXPO_PUBLIC_DEBUG: process.env.EXPO_PUBLIC_DEBUG,
     });
   }
 };
