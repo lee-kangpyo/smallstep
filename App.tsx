@@ -8,7 +8,7 @@ export default function App() {
   return (
     <QueryProvider>
       <AppNavigator />
-      <StatusBar style="auto" />
+      <StatusBar style="light" />
     </QueryProvider>
   );
 }

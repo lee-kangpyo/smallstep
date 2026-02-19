@@ -10,6 +10,10 @@ export const colors = {
   deepMint: "#008080", // 주요 버튼, 아이콘
   lightBlue: "#ADD8E6", // 보조 정보, 긍정적 피드백
 
+
+  //deepMint: "#450693", // 주요 버튼, 아이콘
+  //lightBlue: "#EEEEEE", // 보조 정보, 긍정적 피드백
+
   // Accent (강조색) - 사용자의 행동을 유도하거나 중요한 성취를 강조
   coralPink: "#FF6F61", // 캘린더 스탬프, 핵심 CTA
   warmOrange: "#FF8C00", // 캐릭터 성장, 특별 보상
