@@ -1,283 +1,91 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ViewStyle,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { Card } from "./Card";
-import { Goal, calculateGoalProgress, getCurrentPhase } from "../types";
-import { colors } from "../constants/colors";
-import { typography } from "../constants/typography";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { Goal } from "../types/goals";
+import Feather from "@expo/vector-icons/Feather";
 
 interface GoalCardProps {
   goal: Goal;
-  isActive?: boolean;
-  onPress?: () => void;
-  onEdit?: () => void;
-  onDelete?: () => void;
-  style?: ViewStyle;
+  onPress: (id: string, isNextAction?: boolean) => void;
 }
 
-export const GoalCard: React.FC<GoalCardProps> = ({
-  goal,
-  isActive = false,
-  onPress,
-  onEdit,
-  onDelete,
-  style,
-}) => {
-  const progress = calculateGoalProgress(goal);
-  const currentPhase = getCurrentPhase(goal);
-
-  const getStatusColor = (status: Goal["status"]) => {
-    switch (status) {
-      case "active":
-        return colors.deepMint;
-      case "paused":
-        return colors.coralPink;
-      case "completed":
-        return colors.success;
-      default:
-        return colors.secondaryText;
-    }
-  };
-
-  const getStatusText = (status: Goal["status"]) => {
-    switch (status) {
-      case "active":
-        return "진행 중";
-      case "paused":
-        return "일시정지";
-      case "completed":
-        return "완료";
-      default:
-        return "알 수 없음";
-    }
-  };
+const GoalCard: React.FC<GoalCardProps> = ({ goal, onPress }) => {
+  const progressPercent = Math.round((goal.currentStep / goal.totalSteps) * 100);
+  const todayStr = new Date().toISOString().split("T")[0];
+  const isToday = goal.nextActionDate === todayStr;
 
   return (
     <TouchableOpacity
-      style={[styles.container, isActive && styles.activeContainer, style]}
-      onPress={onPress}
+      className="bg-white rounded-2xl p-5 mb-4 shadow-sm border border-gray-100"
       activeOpacity={0.7}
+      onPress={() => onPress(goal.id)}
     >
-      <Card variant="elevated" padding="medium" style={styles.card}>
-        {/* 헤더 */}
-        <View style={styles.header}>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title} numberOfLines={1}>
-              {goal.title}
+      <View className="flex flex-row justify-between items-start mb-3">
+        <View className="flex flex-row space-x-2">
+          <View className="px-2.5 py-1 bg-indigo-50 rounded-lg">
+            <Text className="text-indigo-600 text-[11px] font-bold uppercase tracking-wider">
+              {goal.category}
             </Text>
-            {isActive && (
-              <View style={styles.activeBadge}>
-                <Text style={styles.activeBadgeText}>활성</Text>
-              </View>
-            )}
           </View>
-
-          {/* 액션 버튼들 */}
-          <View style={styles.actionButtons}>
-            {onEdit && (
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={onEdit}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              >
-                <Ionicons
-                  name="pencil"
-                  size={16}
-                  color={colors.secondaryText}
-                />
-              </TouchableOpacity>
-            )}
-            {onDelete && (
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={onDelete}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              >
-                <Ionicons name="trash" size={16} color={colors.coralPink} />
-              </TouchableOpacity>
-            )}
-          </View>
+          {isToday && (
+            <View className="px-2.5 py-1 bg-red-50 rounded-lg">
+              <Text className="text-red-500 text-[11px] font-bold uppercase tracking-wider">
+                오늘 예정
+              </Text>
+            </View>
+          )}
         </View>
+        <TouchableOpacity>
+          <Feather name="chevron-right" size={20} color="#D1D5DB" />
+        </TouchableOpacity>
+      </View>
 
-        {/* 설명 */}
-        <Text style={styles.description} numberOfLines={2}>
-          {goal.description}
+      <Text className="text-lg font-bold text-gray-900 mb-1">{goal.title}</Text>
+
+      <View className="flex flex-row items-center mb-4">
+        <Feather name="calendar" size={12} color="#9CA3AF" />
+        <Text className="text-xs text-gray-400 ml-1.5">
+          다음 일정: {goal.nextActionDate}
         </Text>
+      </View>
 
-        {/* 진행 상황 */}
-        <View style={styles.progressContainer}>
-          <View style={styles.progressHeader}>
-            <Text style={styles.progressText}>진행률</Text>
-            <Text style={styles.progressPercentage}>{progress}%</Text>
-          </View>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${progress}%` }]} />
-          </View>
+      <TouchableOpacity
+        className="bg-gray-50 rounded-xl p-3 flex flex-row items-center"
+        activeOpacity={0.7}
+        onPress={(e) => {
+          onPress(goal.id, true);
+        }}
+      >
+        <View className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm mr-3">
+          <Feather
+            name="play"
+            size={14}
+            color={isToday ? "#4F46E5" : "#D1D5DB"}
+            fill={isToday ? "#4F46E5" : "transparent"}
+          />
         </View>
-
-        {/* 현재 단계 */}
-        {currentPhase && (
-          <View style={styles.phaseContainer}>
-            <Text style={styles.phaseLabel}>현재 단계</Text>
-            <Text style={styles.phaseTitle} numberOfLines={1}>
-              {currentPhase.phase_title}
-            </Text>
-          </View>
-        )}
-
-        {/* 상태 및 정보 */}
-        <View style={styles.footer}>
-          <View style={styles.statusContainer}>
-            <View
-              style={[
-                styles.statusDot,
-                { backgroundColor: getStatusColor(goal.status) },
-              ]}
-            />
-            <Text style={styles.statusText}>{getStatusText(goal.status)}</Text>
-          </View>
-
-          <View style={styles.infoContainer}>
-            <Text style={styles.infoText}>
-              {goal.progress.consecutiveDays}일 연속
-            </Text>
-            <Text style={styles.infoText}>우선순위 {goal.priority}</Text>
-          </View>
+        <View className="flex-1">
+          <Text className="text-[10px] text-gray-400 font-bold uppercase tracking-wide">
+            Next Step
+          </Text>
+          <Text className="text-sm text-gray-700 font-semibold" numberOfLines={1}>
+            {goal.nextAction}
+          </Text>
         </View>
-      </Card>
+      </TouchableOpacity>
+
+      <View className="mt-4 flex flex-row items-center">
+        <View className="flex-1 bg-gray-100 h-1.5 rounded-full overflow-hidden">
+          <View
+            className="bg-indigo-500 h-full rounded-full"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </View>
+        <Text className="ml-3 text-[11px] font-bold text-indigo-600">
+          {progressPercent}%
+        </Text>
+      </View>
     </TouchableOpacity>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: 16,
-  },
-  activeContainer: {
-    borderWidth: 2,
-    borderColor: colors.deepMint,
-    borderRadius: 18,
-  },
-  card: {
-    margin: 0,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 8,
-  },
-  titleContainer: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  title: {
-    ...typography.h3,
-    color: colors.primaryText,
-    fontWeight: "600",
-    flex: 1,
-  },
-  activeBadge: {
-    backgroundColor: colors.deepMint,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginLeft: 8,
-  },
-  activeBadgeText: {
-    ...typography.caption,
-    color: colors.white,
-    fontWeight: "600",
-  },
-  actionButtons: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  actionButton: {
-    padding: 4,
-    marginLeft: 8,
-  },
-  description: {
-    ...typography.body,
-    color: colors.secondaryText,
-    marginBottom: 16,
-    lineHeight: 20,
-  },
-  progressContainer: {
-    marginBottom: 16,
-  },
-  progressHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  progressText: {
-    ...typography.caption,
-    color: colors.secondaryText,
-  },
-  progressPercentage: {
-    ...typography.caption,
-    color: colors.deepMint,
-    fontWeight: "600",
-  },
-  progressBar: {
-    height: 6,
-    backgroundColor: colors.lightBlue,
-    borderRadius: 3,
-    overflow: "hidden",
-  },
-  progressFill: {
-    height: "100%",
-    backgroundColor: colors.deepMint,
-    borderRadius: 3,
-  },
-  phaseContainer: {
-    marginBottom: 16,
-  },
-  phaseLabel: {
-    ...typography.caption,
-    color: colors.secondaryText,
-    marginBottom: 4,
-  },
-  phaseTitle: {
-    ...typography.body,
-    color: colors.primaryText,
-    fontWeight: "500",
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  statusContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 6,
-  },
-  statusText: {
-    ...typography.caption,
-    color: colors.secondaryText,
-  },
-  infoContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  infoText: {
-    ...typography.caption,
-    color: colors.secondaryText,
-    marginLeft: 12,
-  },
-});
+export default GoalCard;
