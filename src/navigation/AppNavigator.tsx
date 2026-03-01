@@ -58,6 +58,7 @@ const MainTabNavigator = () => {
           height: 80,
           display: "flex", // 강제로 표시
         },
+        headerShown: false,
         headerStyle: {
           backgroundColor: colors.white,
         },
@@ -126,21 +127,21 @@ export const AppNavigator = () => {
             headerShown: false,
           }}
         >
-          <Stack.Screen 
-            name="InitialLoading" 
+          <Stack.Screen
+            name="InitialLoading"
             component={InitialLoadingScreen}
           />
           <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-          <Stack.Screen 
-            name="GoalTemplateSelection" 
+          <Stack.Screen
+            name="GoalTemplateSelection"
             component={GoalTemplateSelectionScreen}
             options={{
               title: '목표 선택',
               headerShown: true,
             }}
           />
-          <Stack.Screen 
-            name="CalendarCustomization" 
+          <Stack.Screen
+            name="CalendarCustomization"
             component={CalendarCustomizationScreen}
             options={{
               title: '계획 시작하기',
