@@ -7,6 +7,8 @@ export default {
     icon: "./assets/icon.png",
     userInterfaceStyle: "light",
     newArchEnabled: true,
+    entryPoint: "expo-router/entry",
+    scheme: "smallstep",
     plugins: [
       "expo-font"
     ],

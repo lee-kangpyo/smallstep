@@ -6,9 +6,9 @@ import { typography } from "../constants/typography";
 
 // 온보딩 이미지 import
 const onboardingImages = {
-  1: require("../../assets/images/onboarding/onboarding-1.png"),
-  2: require("../../assets/images/onboarding/onboarding-2.png"),
-  3: require("../../assets/images/onboarding/onboarding-3.png"),
+  1: require("../assets/images/onboarding/onboarding-1.png"),
+  2: require("../assets/images/onboarding/onboarding-2.png"),
+  3: require("../assets/images/onboarding/onboarding-3.png"),
 };
 
 interface OnboardingSlideProps {
