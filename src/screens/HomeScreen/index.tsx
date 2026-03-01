@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import Header from "../../components/Header";
@@ -7,60 +7,24 @@ import GoalCard from "../../components/GoalCard";
 import AddGoalFloatingButton from "./components/AddGoalFloatingButton";
 import { TodaysTasksSection } from "./components/TodaysTasksSection";
 import { Feather } from "@expo/vector-icons";
-
-const todayStr = new Date().toISOString().split("T")[0];
-
-const MOCK_GOALS = [
-  {
-    id: "1",
-    title: "하프 마라톤 완주하기",
-    totalSteps: 12,
-    currentStep: 4,
-    nextAction: "인터벌 트레이닝 5km",
-    nextActionDate: todayStr,
-    category: "운동",
-    tasks: [],
-  },
-  {
-    id: "2",
-    title: "단편 소설 초고 완성",
-    totalSteps: 8,
-    currentStep: 2,
-    nextAction: "주인공 갈등 요소 설정",
-    nextActionDate: todayStr,
-    category: "창작",
-    tasks: [],
-  },
-  {
-    id: "3",
-    title: "기초 포르투갈어 회화",
-    totalSteps: 10,
-    currentStep: 3,
-    nextAction: "식당에서 주문하기 연습",
-    nextActionDate: new Date(Date.now() + 86400000).toISOString().split("T")[0],
-    category: "학습",
-    tasks: [],
-  },
-];
+import { useHomeViewModel } from "./models/viewModel";
 
 export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<any>();
 
-  const user = {
-    name: "지민",
-    activeGoalCount: MOCK_GOALS.length,
-    overallProgress: 42,
-  };
-
-  const todaysTasks = MOCK_GOALS.filter((g) => g.nextActionDate === todayStr);
+  const {
+    headerData,
+    todaysTasks,
+    plannerGoals,
+  } = useHomeViewModel();
 
   const handleGoalPress = (id: string, isNextAction?: boolean) => {
-    console.log("Goal pressed:", id, "Next action:", isNextAction);
+    Alert.alert('핸들 골프레스', `ID: ${id}, Next Action: ${isNextAction}`);
   };
 
   return (
     <SafeAreaView className="flex-1 flex-col h-full bg-gray-50">
-      <Header user={user} />
+      <Header user={headerData} />
 
       <ScrollView
         className="px-6 py-4 pb-32"
@@ -84,7 +48,7 @@ export const HomeScreen: React.FC = () => {
           </View>
         </View>
 
-        {MOCK_GOALS.map((goal) => (
+        {plannerGoals.map((goal) => (
           <GoalCard key={goal.id} goal={goal} onPress={handleGoalPress} />
         ))}
       </ScrollView>

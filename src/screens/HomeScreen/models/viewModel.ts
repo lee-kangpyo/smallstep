@@ -1,8 +1,10 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Goal, ScheduleItem } from "../../../types";
 import { useGoalStore } from "../../../stores";
+import { useUserStore } from "../../../stores";
 import { getTodayActivitiesFromGoals } from "../../../utils/scheduleUtils";
 import { useWeekProgressViewModel } from "./useWeekProgressViewModel";
+import { transformToTodaysTasks, transformToPlannerGoals, transformToHeaderData, calculateOverallProgress } from "../../../utils/home";
 
 /**
  * HomeScreen용 ViewModel
@@ -16,6 +18,8 @@ export const useHomeViewModel = () => {
     updateGoal,
     getActiveGoals,
   } = useGoalStore();
+
+  const { userData } = useUserStore();
 
   // 로컬 상태
   const [activityModalVisible, setActivityModalVisible] = useState(false);
@@ -50,9 +54,59 @@ export const useHomeViewModel = () => {
 
   // 오늘의 활동
   const todayActivities = useMemo(
-    () => getTodayActivitiesFromGoals(getActiveGoals(), today),
+    () => {
+      const activeGoals = getActiveGoals();
+      console.log('[HomeScreen] getActiveGoals 결과:', activeGoals.map(g => ({
+        id: g.id,
+        title: g.title,
+        startDate: g.startDate,
+        hasRoadmap: !!g.roadmap,
+        hasSchedule: !!g.roadmap?.schedule,
+        scheduleLength: g.roadmap?.schedule?.length,
+        weeklyPattern: g.weeklyPattern,
+      })));
+      const activities = getTodayActivitiesFromGoals(activeGoals, today);
+      console.log('[HomeScreen] getTodayActivitiesFromGoals 결과:', activities);
+      return activities;
+    },
     [goals, today]
   );
+
+  // 오늘 할 일 데이터 변환
+  const todaysTasks = useMemo(
+    () => transformToTodaysTasks(todayActivities),
+    [todayActivities]
+  );
+
+  // 나의 플래너 목표 데이터 변환
+  const plannerGoals = useMemo(
+    () => transformToPlannerGoals(goals),
+    [goals]
+  );
+
+  // Header 데이터 변환
+  const headerData = useMemo(
+    () => transformToHeaderData(goals, userData),
+    [goals, userData]
+  );
+
+  // 데이터 디버깅 (goals가 로드될 때만 실행)
+  useEffect(() => {
+    if (goals.length > 0) {
+      console.log('[HomeScreen] Goals 데이터 확인:', goals.map(g => ({
+        id: g.id,
+        title: g.title,
+        totalProgress: g.progress.totalProgress,
+        completedScheduleItems: g.progress.completedScheduleItems?.length,
+        scheduleLength: g.roadmap?.schedule?.length,
+      })));
+      console.log('[HomeScreen] Header 계산:', {
+        goalsCount: goals.length,
+        total: goals.reduce((sum, g) => sum + g.progress.totalProgress, 0),
+        average: calculateOverallProgress(goals),
+      });
+    }
+  }, [goals]);
 
   // 헬퍼 함수
   const isActivityCompleted = useCallback(
@@ -131,6 +185,9 @@ export const useHomeViewModel = () => {
     // 계산된 값
     todayActivities,
     weekProgressStats,
+    todaysTasks,
+    plannerGoals,
+    headerData,
 
     // 핸들러
     handleActivityPress,
