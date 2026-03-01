@@ -5,17 +5,20 @@ import { useGoalStore } from '../stores';
 
 export default function IndexScreen() {
   const router = useRouter();
-  const { goals } = useGoalStore();
+  const { goals, loadGoals, isLoading } = useGoalStore();
   const isMounted = useRef(false);
+  const hasNavigated = useRef(false);
 
   useEffect(() => {
     isMounted.current = true;
-  }, []);
+    loadGoals();
+  }, [loadGoals]);
 
   useEffect(() => {
-    if (!isMounted.current) return;
+    if (!isMounted.current || isLoading || hasNavigated.current) return;
 
     const timer = setTimeout(() => {
+      hasNavigated.current = true;
       if (goals.length > 0) {
         router.replace('/(tabs)');
       } else {
@@ -24,7 +27,7 @@ export default function IndexScreen() {
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [goals, router]);
+  }, [goals, isLoading, router]);
 
   return (
     <View style={styles.container}>

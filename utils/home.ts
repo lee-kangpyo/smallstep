@@ -1,7 +1,7 @@
 import { Goal } from '../types';
 import { ScheduleItem } from '../types';
 import { Goal as GoalCardGoal } from '../types/goals';
-import { getDayOfWeek, getWeekNumberFromStart } from './scheduleUtils';
+import { getDayOfWeek, getWeekNumberFromStart, getDateFromWeekAndDay } from './scheduleUtils';
 
 /**
  * 오늘 할 일 데이터 변환
@@ -31,24 +31,39 @@ const getNextActionDateFromGoal = (goal: Goal): string => {
     return new Date().toISOString().split('T')[0];
   }
 
-  const completed = new Set(goal.progress.completedScheduleItems);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const currentDay = getDayOfWeek(today);
+  const currentWeek = getWeekNumberFromStart(goal.startDate, today);
 
-  const incompleteItems = goal.roadmap.schedule
-    .filter(item => !completed.has(`${goal.id}-${item.week}-${item.day}`))
-    .map(item => {
-      const week = getWeekNumberFromStart(goal.startDate, today);
-      const day = getDayOfWeek(today);
-      return {
-        ...item,
-        estimatedDate: week * 7 + day,
-      };
-    })
-    .sort((a, b) => a.estimatedDate - b.estimatedDate);
+  // weeklyPattern이 있으면 선택된 요일 기준으로 계산
+  if (goal.weeklyPattern && goal.weeklyPattern.selectedDays) {
+    const { selectedDays } = goal.weeklyPattern;
 
-  if (incompleteItems.length === 0) {
-    return new Date().toISOString().split('T')[0];
+    // 오늘 이후 가장 가까운 선택된 요일 찾기
+    const nextDay = selectedDays.find(day => day >= currentDay);
+
+    if (nextDay) {
+      // 같은 주에 있는 요일
+      const date = getDateFromWeekAndDay(goal.startDate, currentWeek, nextDay);
+      return date.toISOString().split('T')[0];
+    } else {
+      // 다음 주 첫 번째 요일
+      const firstDay = selectedDays[0];
+      const date = getDateFromWeekAndDay(goal.startDate, currentWeek + 1, firstDay);
+      return date.toISOString().split('T')[0];
+    }
+  }
+
+  // weeklyPattern이 없으면 schedule에서 다음 항목 찾기
+  const completed = new Set(goal.progress.completedScheduleItems);
+  const nextItem = goal.roadmap.schedule.find(
+    item => !completed.has(`${goal.id}-${item.week}-${item.day}`)
+  );
+
+  if (nextItem) {
+    const date = getDateFromWeekAndDay(goal.startDate, nextItem.week, nextItem.day);
+    return date.toISOString().split('T')[0];
   }
 
   return new Date().toISOString().split('T')[0];
@@ -62,6 +77,31 @@ const getNextActionFromGoal = (goal: Goal): string => {
     return '다음 활동';
   }
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const currentDay = getDayOfWeek(today);
+  const currentWeek = getWeekNumberFromStart(goal.startDate, today);
+
+  // weeklyPattern이 있으면 선택된 요일 기준으로 계산
+  if (goal.weeklyPattern && goal.weeklyPattern.selectedDays) {
+    const { selectedDays } = goal.weeklyPattern;
+
+    // 오늘 이후 가장 가까운 선택된 요일 찾기
+    const nextDay = selectedDays.find(day => day >= currentDay);
+    const targetDay = nextDay || selectedDays[0];
+    const targetWeek = nextDay ? currentWeek : currentWeek + 1;
+
+    // 해당 주차의 활동 찾기
+    const weekActivities = goal.roadmap.schedule.filter(item => item.week === targetWeek);
+
+    if (weekActivities.length > 0) {
+      return weekActivities[0].title;
+    }
+
+    return `${goal.title} - Week ${targetWeek} Day ${targetDay}`;
+  }
+
+  // weeklyPattern이 없으면 schedule에서 다음 항목 찾기
   const completed = new Set(goal.progress.completedScheduleItems);
   const nextItem = goal.roadmap.schedule.find(
     item => !completed.has(`${goal.id}-${item.week}-${item.day}`)

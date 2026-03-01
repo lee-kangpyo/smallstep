@@ -1,16 +1,50 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Alert } from "react-native";
 import { colors } from "../../constants/colors";
 import { typography } from "../../constants/typography";
+import { Button } from "../../components/Button";
+import { useGoalStore } from "../../stores";
 
 export default function ProfileScreen() {
+  const { goals, deleteGoal } = useGoalStore();
+
+  const handleClearAllGoals = () => {
+    Alert.alert(
+      '모든 목표 삭제',
+      '정말 모든 목표를 삭제하시겠습니까?\n(테스트용)',
+      [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '삭제',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              for (const goal of goals) {
+                await deleteGoal(goal.id);
+              }
+              Alert.alert('삭제 완료', `${goals.length}개의 목표를 삭제했습니다.`);
+            } catch (error) {
+              Alert.alert('오류', '목표 삭제에 실패했습니다.');
+            }
+          }
+        }
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>바텀 탭 테스트</Text>
-      <Text style={styles.subtitle}>하단에 탭이 보이나요?</Text>
+      <Text style={styles.title}>프로필</Text>
+      <Text style={styles.subtitle}>현재 목표: {goals.length}개</Text>
       <View style={styles.testBox}>
-        <Text style={styles.testText}>이 박스 아래에 탭이 있어야 합니다</Text>
+        <Text style={styles.testText}>테스트용 버튼</Text>
       </View>
+      <Button
+        title="모든 목표 삭제"
+        onPress={handleClearAllGoals}
+        variant="outline"
+        style={styles.deleteButton}
+      />
     </View>
   );
 }
@@ -52,5 +86,9 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.primaryText,
     textAlign: "center",
+  },
+  deleteButton: {
+    marginTop: 20,
+    marginHorizontal: 20,
   },
 });

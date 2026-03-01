@@ -19,7 +19,8 @@ export default function HomeScreen() {
   } = useHomeViewModel();
 
   const handleGoalPress = (id: string, isNextAction?: boolean) => {
-    Alert.alert('핸들 골프레스', `ID: ${id}, Next Action: ${isNextAction}`);
+    // TODO: GoalDetailScreen으로 이동
+    console.log('[HomeScreen] Goal pressed:', id, 'isNextAction:', isNextAction);
   };
 
   return (
@@ -32,11 +33,17 @@ export default function HomeScreen() {
         contentContainerStyle={{ paddingBottom: 200 }}
       >
         {/* 오늘 할 일 섹션 */}
-        {todaysTasks.length > 0 && (
+        {todaysTasks.length > 0 ? (
           <TodaysTasksSection
             tasks={todaysTasks}
             onExecute={(id) => handleGoalPress(id, true)}
           />
+        ) : (
+          <View className="mb-6">
+            <Text className="text-base text-gray-600 text-center py-4">
+              오늘 할 일이 없습니다 🎉
+            </Text>
+          </View>
         )}
 
         <View className="flex flex-row justify-between items-center mb-6">

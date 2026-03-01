@@ -56,17 +56,8 @@ export const useHomeViewModel = () => {
   const todayActivities = useMemo(
     () => {
       const activeGoals = getActiveGoals();
-      console.log('[HomeScreen] getActiveGoals 결과:', activeGoals.map(g => ({
-        id: g.id,
-        title: g.title,
-        startDate: g.startDate,
-        hasRoadmap: !!g.roadmap,
-        hasSchedule: !!g.roadmap?.schedule,
-        scheduleLength: g.roadmap?.schedule?.length,
-        weeklyPattern: g.weeklyPattern,
-      })));
       const activities = getTodayActivitiesFromGoals(activeGoals, today);
-      console.log('[HomeScreen] getTodayActivitiesFromGoals 결과:', activities);
+      console.log('[HomeScreen] 오늘 활동 수:', activities.length);
       return activities;
     },
     [goals, today]
@@ -93,18 +84,7 @@ export const useHomeViewModel = () => {
   // 데이터 디버깅 (goals가 로드될 때만 실행)
   useEffect(() => {
     if (goals.length > 0) {
-      console.log('[HomeScreen] Goals 데이터 확인:', goals.map(g => ({
-        id: g.id,
-        title: g.title,
-        totalProgress: g.progress.totalProgress,
-        completedScheduleItems: g.progress.completedScheduleItems?.length,
-        scheduleLength: g.roadmap?.schedule?.length,
-      })));
-      console.log('[HomeScreen] Header 계산:', {
-        goalsCount: goals.length,
-        total: goals.reduce((sum, g) => sum + g.progress.totalProgress, 0),
-        average: calculateOverallProgress(goals),
-      });
+      console.log('[HomeScreen] 목표 로드됨:', goals.length, '개');
     }
   }, [goals]);
 

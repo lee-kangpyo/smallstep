@@ -211,22 +211,11 @@ export const getActivitiesForDate = (
 ): ScheduleItem[] => {
   const targetWeek = getWeekNumberFromStart(startDate, targetDate);
   const targetDay = getDayOfWeek(targetDate);
-  
-  console.log('[getActivitiesForDate]', {
-    startDate,
-    targetDate: targetDate.toISOString().split('T')[0],
-    targetWeek,
-    targetDay,
-    scheduleLength: schedule.length,
-    scheduleSample: schedule.slice(0, 3).map(s => ({ week: s.week, day: s.day }))
-  });
-  
+
   const matched = schedule.filter(
     (item) => item.week === targetWeek && item.day === targetDay
   );
-  
-  console.log('[getActivitiesForDate] matched:', matched.length);
-  
+
   return matched;
 };
 
@@ -241,15 +230,15 @@ export const getTodayActivitiesFromGoals = (
   targetDate: Date = new Date()
 ): Array<ScheduleItem & { goalId: string; goalTitle: string }> => {
   const activities: Array<ScheduleItem & { goalId: string; goalTitle: string }> = [];
-  
+
   goals.forEach((goal) => {
     if (!goal.startDate || !goal.roadmap?.schedule) return;
-    
+
+    const targetWeek = getWeekNumberFromStart(goal.startDate, targetDate);
+    const targetDay = getDayOfWeek(targetDate);
+
     // weeklyPattern이 있으면 동적으로 활동 생성
     if (goal.weeklyPattern && goal.weeklyPattern.selectedDays) {
-      const targetWeek = getWeekNumberFromStart(goal.startDate, targetDate);
-      const targetDay = getDayOfWeek(targetDate);
-      
       // 선택된 요일에 포함되는지 확인
       if (goal.weeklyPattern.selectedDays.includes(targetDay)) {
         // 해당 주차의 schedule에서 활동 찾기
