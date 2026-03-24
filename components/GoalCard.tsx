@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { Goal } from "../types/goals";
 import Feather from "@expo/vector-icons/Feather";
 
@@ -9,78 +9,53 @@ interface GoalCardProps {
 }
 
 const GoalCard: React.FC<GoalCardProps> = ({ goal, onPress }) => {
-  const progressPercent = Math.round((goal.currentStep / goal.totalSteps) * 100);
-  const todayStr = new Date().toISOString().split("T")[0];
-  const isToday = goal.nextActionDate === todayStr;
+  const progressPercent = Math.round(
+    (goal.currentStep / goal.totalSteps) * 100
+  );
 
   return (
     <TouchableOpacity
-      className="bg-white rounded-2xl p-5 mb-4 shadow-sm border border-gray-100"
+      className="bg-white rounded-2xl px-5 py-4 mb-3"
       activeOpacity={0.7}
       onPress={() => onPress(goal.id)}
+      style={{
+        shadowColor: "#0F172A",
+        shadowOpacity: 0.04,
+        shadowRadius: 12,
+        shadowOffset: { width: 0, height: 4 },
+        elevation: 2,
+      }}
     >
-      <View className="flex flex-row justify-between items-start mb-3">
-        <View className="flex flex-row space-x-2">
-          <View className="px-2.5 py-1 bg-indigo-50 rounded-lg">
-            <Text className="text-indigo-600 text-[11px] font-bold uppercase tracking-wider">
-              {goal.category}
-            </Text>
-          </View>
-          {isToday && (
-            <View className="px-2.5 py-1 bg-red-50 rounded-lg">
-              <Text className="text-red-500 text-[11px] font-bold uppercase tracking-wider">
-                오늘 예정
-              </Text>
-            </View>
-          )}
-        </View>
-        <TouchableOpacity>
-          <Feather name="chevron-right" size={20} color="#D1D5DB" />
-        </TouchableOpacity>
+      {/* Top row */}
+      <View className="flex-row justify-between items-center mb-3">
+        <Text className="text-slate-900 text-[15px] font-bold flex-1 mr-3" numberOfLines={1}>
+          {goal.title}
+        </Text>
+        <Feather name="chevron-right" size={16} color="#CBD5E1" />
       </View>
 
-      <Text className="text-lg font-bold text-gray-900 mb-1">{goal.title}</Text>
-
-      <View className="flex flex-row items-center mb-4">
-        <Feather name="calendar" size={12} color="#9CA3AF" />
-        <Text className="text-xs text-gray-400 ml-1.5">
-          다음 일정: {goal.nextActionDate}
+      {/* Next action */}
+      <View className="flex-row items-center mb-3">
+        <View className="w-5 h-5 rounded-md bg-indigo-50 items-center justify-center mr-2.5">
+          <Feather name="zap" size={11} color="#6366F1" />
+        </View>
+        <Text className="text-slate-500 text-[13px] font-medium flex-1" numberOfLines={1}>
+          {goal.nextAction}
         </Text>
       </View>
 
-      <TouchableOpacity
-        className="bg-gray-50 rounded-xl p-3 flex flex-row items-center"
-        activeOpacity={0.7}
-        onPress={(e) => {
-          onPress(goal.id, true);
-        }}
-      >
-        <View className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm mr-3">
-          <Feather
-            name="play"
-            size={14}
-            color={isToday ? "#4F46E5" : "#D1D5DB"}
-            fill={isToday ? "#4F46E5" : "transparent"}
-          />
-        </View>
-        <View className="flex-1">
-          <Text className="text-[10px] text-gray-400 font-bold uppercase tracking-wide">
-            Next Step
-          </Text>
-          <Text className="text-sm text-gray-700 font-semibold" numberOfLines={1}>
-            {goal.nextAction}
-          </Text>
-        </View>
-      </TouchableOpacity>
-
-      <View className="mt-4 flex flex-row items-center">
-        <View className="flex-1 bg-gray-100 h-1.5 rounded-full overflow-hidden">
+      {/* Progress bar */}
+      <View className="flex-row items-center">
+        <View className="flex-1 bg-slate-100 h-1 rounded-full overflow-hidden mr-3">
           <View
-            className="bg-indigo-500 h-full rounded-full"
-            style={{ width: `${progressPercent}%` }}
+            className="h-full rounded-full"
+            style={{
+              width: `${progressPercent}%`,
+              backgroundColor: progressPercent >= 70 ? "#22C55E" : "#6366F1",
+            }}
           />
         </View>
-        <Text className="ml-3 text-[11px] font-bold text-indigo-600">
+        <Text className="text-[11px] font-bold text-slate-400 w-8 text-right">
           {progressPercent}%
         </Text>
       </View>

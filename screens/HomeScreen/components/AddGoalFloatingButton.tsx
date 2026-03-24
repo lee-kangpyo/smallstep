@@ -9,11 +9,19 @@ const AddGoalFloatingButton: React.FC = () => {
 
   return (
     <TouchableOpacity
-      className="absolute bottom-8 right-6 w-14 h-14 bg-indigo-600 rounded-full items-center justify-center shadow-lg z-50"
-      activeOpacity={0.8}
-        onPress={handlePress}
+      className="absolute bottom-8 right-6 w-14 h-14 rounded-2xl items-center justify-center z-50"
+      style={{
+        backgroundColor: "#4F46E5",
+        shadowColor: "#4F46E5",
+        shadowOpacity: 0.35,
+        shadowRadius: 16,
+        shadowOffset: { width: 0, height: 6 },
+        elevation: 8,
+      }}
+      activeOpacity={0.85}
+      onPress={handlePress}
     >
-      <Feather name="plus" size={32} color="#FFFFFF" strokeWidth={2.5} />
+      <Feather name="plus" size={26} color="#FFFFFF" />
     </TouchableOpacity>
   );
 };
