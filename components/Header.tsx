@@ -9,31 +9,33 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ user }) => {
   return (
-    <View className="px-6 pt-12 pb-6 bg-white border-b border-gray-100">
-      <View className="flex flex-row justify-between items-start mb-6">
-        <View>
-          <Text className="text-2xl font-bold text-gray-900 leading-tight">
-            반가워요, {user.name}님!
-          </Text>
-          <Text className="text-gray-500 mt-1 font-medium">
-            오늘 {user.activeGoalCount}개의 목표가 기다리고 있어요.
+    <View className="px-6 pt-14 pb-6" style={{ backgroundColor: "#FAFAFA" }}>
+      <View className="flex flex-row justify-between items-start">
+        <View className="flex-1">
+          <Text className="text-[28px] font-black text-slate-900 tracking-tight leading-tight">
+            {user.name}님,{"\n"}오늘도 파이팅 💪
           </Text>
         </View>
-        <TouchableOpacity className="p-2 bg-gray-50 rounded-full">
-          <Feather name="bell" size={24} color="#9CA3AF" />
+        <TouchableOpacity
+          className="w-11 h-11 rounded-2xl items-center justify-center ml-4 mt-1"
+          style={{ backgroundColor: "#F1F5F9" }}
+        >
+          <Feather name="bell" size={20} color="#64748B" />
         </TouchableOpacity>
       </View>
 
-      <View className="space-y-2">
-        <View className="flex flex-row justify-between items-end">
-          <Text className="text-sm font-semibold text-gray-700">전체 달성률</Text>
-          <Text className="text-sm font-bold text-indigo-600">{user.overallProgress}%</Text>
+      {/* Compact stats row */}
+      <View className="flex-row items-center mt-5 gap-4">
+        <View className="flex-row items-center">
+          <View className="w-2 h-2 rounded-full bg-indigo-500 mr-2" />
+          <Text className="text-slate-400 text-xs font-semibold">목표</Text>
+          <Text className="text-slate-700 text-sm font-black ml-1.5">{user.activeGoalCount}개</Text>
         </View>
-        <View className="w-full bg-indigo-50 h-3 rounded-full overflow-hidden">
-          <View
-            className="bg-indigo-600 h-full rounded-full"
-            style={{ width: `${user.overallProgress}%` }}
-          />
+        <View className="w-px h-3 bg-slate-200" />
+        <View className="flex-row items-center">
+          <View className="w-2 h-2 rounded-full bg-violet-500 mr-2" />
+          <Text className="text-slate-400 text-xs font-semibold">달성률</Text>
+          <Text className="text-slate-700 text-sm font-black ml-1.5">{user.overallProgress}%</Text>
         </View>
       </View>
     </View>

@@ -12,49 +12,70 @@ export const TodaysTasksSection: React.FC<TodaysTasksSectionProps> = ({
   tasks,
   onExecute,
 }) => {
+  const primeTask = tasks[0];
+  const remainingCount = tasks.length - 1;
+
   return (
     <View className="mb-8">
-      {/* 섹션 헤더 */}
-      <View className="flex flex-row items-center mb-4">
-        <Feather name="clock" size={18} color="#EF4444" />
-        <Text className="text-lg font-bold text-gray-800 ml-2">
-          오늘 꼭 해야 할 일
-        </Text>
+      {/* Section label */}
+      <Text className="text-xs font-bold text-slate-400 tracking-widest uppercase mb-4 ml-1">
+        🔥 지금 할 일
+      </Text>
+
+      {/* Mission Card - floating feel */}
+      <View
+        className="rounded-3xl overflow-hidden"
+        style={{
+          backgroundColor: "#4F46E5",
+          shadowColor: "#4F46E5",
+          shadowOpacity: 0.25,
+          shadowRadius: 24,
+          shadowOffset: { width: 0, height: 12 },
+          elevation: 8,
+        }}
+      >
+        <View className="px-6 pt-7 pb-3">
+          <View className="flex-row items-center mb-5">
+            <View className="bg-white/15 px-3 py-1 rounded-full">
+              <Text className="text-indigo-100 text-[10px] font-black uppercase tracking-widest">
+                {primeTask.category || "QUEST"}
+              </Text>
+            </View>
+          </View>
+
+          <Text className="text-indigo-200 text-xs font-semibold mb-1.5">
+            {primeTask.title}
+          </Text>
+          <Text className="text-white text-xl font-black leading-snug" numberOfLines={2}>
+            {primeTask.nextAction}
+          </Text>
+        </View>
+
+        {/* CTA */}
+        <TouchableOpacity
+          onPress={() => onExecute(primeTask.id)}
+          activeOpacity={0.9}
+          className="mx-5 mb-5 mt-3 bg-white rounded-2xl py-4 flex-row items-center justify-center"
+          style={{
+            shadowColor: "#000",
+            shadowOpacity: 0.06,
+            shadowRadius: 8,
+            shadowOffset: { width: 0, height: 2 },
+          }}
+        >
+          <Text className="text-indigo-600 text-base font-black mr-2">실행하기</Text>
+          <Feather name="arrow-right" size={16} color="#4F46E5" />
+        </TouchableOpacity>
       </View>
 
-      {/* 보라색 카드 */}
-      <View className="bg-indigo-600 rounded-3xl p-5 shadow-xl relative overflow-hidden">
-        <View className="relative z-10">
-          {tasks.map((goal, idx) => (
-            <View
-              key={goal.id}
-              className={`${
-                idx !== 0 ? "mt-4 pt-4 border-t border-indigo-400/30" : ""
-              } flex flex-row justify-between items-center`}
-            >
-              <View className="flex-1 mr-4">
-                <Text className="text-indigo-200 text-[10px] font-bold uppercase tracking-widest mb-0.5">
-                  {goal.title}
-                </Text>
-                <Text className="text-base font-bold leading-tight text-white">
-                  {goal.nextAction}
-                </Text>
-              </View>
-              <TouchableOpacity
-                onPress={() => onExecute(goal.id)}
-                className="bg-white text-indigo-600 px-4 py-2 rounded-xl"
-                activeOpacity={0.8}
-              >
-                <Text className="text-xs font-bold text-indigo-600">
-                  실행하기
-                </Text>
-              </TouchableOpacity>
-            </View>
-          ))}
+      {/* Remaining hint */}
+      {remainingCount > 0 && (
+        <View className="flex-row items-center justify-center mt-3">
+          <Text className="text-slate-400 text-[11px] font-semibold">
+            +{remainingCount}개의 할 일이 대기 중
+          </Text>
         </View>
-        {/* 배경 장식 */}
-        <View className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-10 -mt-10 blur-xl" />
-      </View>
+      )}
     </View>
   );
 };
