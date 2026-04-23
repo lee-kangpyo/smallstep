@@ -9,7 +9,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Roadmap, Phase, ScheduleItem } from "../types";
 import { colors } from "../constants/colors";
 import { typography } from "../constants/typography";
-import { PhaseScheduleModal } from "../screens/GoalTemplateSelectionScreen/components/PhaseScheduleModal";
+
 
 interface RoadmapCardProps {
   roadmap: Roadmap;
@@ -31,11 +31,6 @@ export const RoadmapCard: React.FC<RoadmapCardProps> = ({
   const handleViewSchedule = (phase: Phase) => {
     setSelectedPhaseForModal(phase);
     setModalVisible(true);
-  };
-
-  const handleCloseModal = () => {
-    setModalVisible(false);
-    setSelectedPhaseForModal(null);
   };
 
   return (
@@ -124,14 +119,6 @@ export const RoadmapCard: React.FC<RoadmapCardProps> = ({
           총 {totalDuration}개의 활동으로 구성된 {totalPhases}단계 로드맵입니다
         </Text>
       </View>
-
-      {/* 스케줄 모달 */}
-      <PhaseScheduleModal
-        visible={modalVisible}
-        phase={selectedPhaseForModal}
-        scheduleItems={roadmap.schedule}
-        onClose={handleCloseModal}
-      />
     </View>
   );
 };
