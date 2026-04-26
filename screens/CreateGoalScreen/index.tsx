@@ -51,12 +51,12 @@ export const CreateGoalScreen: React.FC = () => {
           <Text style={styles.headerTitle}>새 목표</Text>
           <TouchableOpacity
             onPress={handleSubmit}
-            disabled={isLoading || !title.trim()}
+            disabled={isLoading || !title.trim() || !dailyMinutes.trim()}
           >
             <Text
               style={[
                 styles.saveButton,
-                (!title.trim() || isLoading) && styles.saveButtonDisabled,
+                (!title.trim() || !dailyMinutes.trim() || isLoading) && styles.saveButtonDisabled,
               ]}
             >
               {isLoading ? "생성 중..." : "저장"}
@@ -81,7 +81,7 @@ export const CreateGoalScreen: React.FC = () => {
               <Text style={styles.label}>설명</Text>
               <TextInput
                 style={[styles.input, styles.textArea]}
-                placeholder="목표에 대한 구체적인 설명을 입력필세요"
+                placeholder="목표에 대한 구체적인 설명을 입력해주세요"
                 value={description}
                 onChangeText={setDescription}
                 multiline
@@ -91,7 +91,7 @@ export const CreateGoalScreen: React.FC = () => {
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>하루 가용 시간 (분)</Text>
+              <Text style={styles.label}>하루 가용 시간 (분) *</Text>
               <TextInput
                 style={styles.input}
                 placeholder="예: 60"

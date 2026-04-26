@@ -28,26 +28,30 @@ export const GoalsScreen: React.FC = () => {
   }, []);
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
+    switch (status.toUpperCase()) {
+      case "ACTIVE":
         return "#3B82F6";
-      case "completed":
+      case "COMPLETED":
         return "#10B981";
-      case "paused":
+      case "PAUSED":
         return "#F59E0B";
+      case "ARCHIVED":
+        return "#6B7280";
       default:
         return "#6B7280";
     }
   };
 
   const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "active":
+    switch (status.toUpperCase()) {
+      case "ACTIVE":
         return "진행 중";
-      case "completed":
+      case "COMPLETED":
         return "완료";
-      case "paused":
+      case "PAUSED":
         return "일시 중지";
+      case "ARCHIVED":
+        return "보관됨";
       default:
         return status;
     }

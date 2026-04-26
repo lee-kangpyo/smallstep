@@ -40,6 +40,23 @@ export const HomeScreen: React.FC = () => {
 
   const completedTasksCount = todayTasks.filter((t) => t.status === "COMPLETED").length;
   const availableTasksCount = todayTasks.filter((t) => t.status === "AVAILABLE").length;
+  const totalTasksCount = todayTasks.length;
+
+  const getDynamicEncouragement = () => {
+    if (totalTasksCount === 0) {
+      return "오늘은 푹 쉬거나 새로운 목표를 세워보는 건 어떨까요? 🌱";
+    }
+    if (completedTasksCount === totalTasksCount) {
+      return `🎉 오늘의 모든 태스크를 완료했어요! ${streakInfo?.current_streak ? `${streakInfo.current_streak}일 연속 달성 훌륭합니다!` : "훌륭합니다!"}`;
+    }
+    if (completedTasksCount === 0) {
+      return "오늘도 힘차게 시작해볼까요? 화이팅! 💪";
+    }
+    if (completedTasksCount >= totalTasksCount / 2) {
+      return "벌써 절반 이상 해냈어요! 조금만 더 힘내세요! 🔥";
+    }
+    return "좋은 시작입니다! 꾸준히 나아가요 🚀";
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -88,15 +105,15 @@ export const HomeScreen: React.FC = () => {
         {/* 오늘 할 일 */}
         <View style={styles.tasksSection}>
           <Text style={styles.sectionTitle}>
-            오늘의 할 일 ({completedTasksCount}/{todayTasks.length})
+            오늘의 할 일 ({completedTasksCount}/{totalTasksCount})
           </Text>
 
-          {todayTasks.length === 0 ? (
+          {totalTasksCount === 0 ? (
             <View style={styles.emptyState}>
               <Text style={styles.emptyStateEmoji}>✨</Text>
               <Text style={styles.emptyStateTitle}>모든 할 일 완료!</Text>
               <Text style={styles.emptyStateSubtitle}>
-                오늘도 대단해요. 새 목표를 추가필볼까요?
+                오늘도 대단해요. 새 목표를 추가해볼까요?
               </Text>
             </View>
           ) : (
@@ -110,14 +127,12 @@ export const HomeScreen: React.FC = () => {
           )}
         </View>
 
-        {/* 격려 메시지 */}
-        {availableTasksCount === 0 && todayTasks.length > 0 && (
-          <View style={styles.encouragementSection}>
-            <Text style={styles.encouragementText}>
-              🎉 오늘의 모든 태스크를 완료했어요! 훌륭합니다!
-            </Text>
-          </View>
-        )}
+        {/* 동적 격려 메시지 */}
+        <View style={styles.encouragementSection}>
+          <Text style={styles.encouragementText}>
+            {getDynamicEncouragement()}
+          </Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

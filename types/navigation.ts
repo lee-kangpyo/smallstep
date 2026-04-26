@@ -4,7 +4,7 @@ import { NavigatorScreenParams } from '@react-navigation/native';
 export type MainTabParamList = {
   Home: { userId: number };
   Goals: { userId: number };
-  Activities: { goalId?: number; userId: number };
+  Stats: { userId: number };
   Profile: { userId: number };
 };
 
@@ -12,9 +12,7 @@ export type MainTabParamList = {
 export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList>;
   GoalDetail: { goalId: number; userId: number };
-  ActivityDetail: { activityId: number; goalId: number };
   CreateGoal: { userId: number };
-  CreateActivity: { goalId: number };
   Settings: undefined;
 };
 
