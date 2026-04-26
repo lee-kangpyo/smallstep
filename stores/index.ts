@@ -1,4 +1,4 @@
-// Zustand 스토어 인덱스 파일
+// Zustand 스토어 인덱스 파일 (v2)
 export { useGoalStore } from "./goalStore";
+export { useTaskStore } from "./taskStore";
 export { useUserStore } from "./userStore";
-export { useActivityStore } from "./activityStore";

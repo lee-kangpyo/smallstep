@@ -1,106 +1,78 @@
 import { create } from "zustand";
-import { Badge, mockUserData, mockUserGameData } from "../data/mockData";
-import { calculateExperience, calculateLevel } from "../data/mockData";
-import { Goal } from "../types";
-
-interface UserData {
-  id: string;
-  name: string;
-  level: number;
-  consecutiveDays: number;
-  totalSteps: number;
-  completedSteps: number;
-  currentGoal: string;
-  goals?: Goal[];
-  activeGoalId?: string;
-}
-
-interface UserGameData {
-  level: number;
-  experience: number;
-  totalSteps: number;
-  completedSteps: number;
-  currentStreak: number;
-  longestStreak: number;
-  badges: Badge[];
-  lastCompletedDate?: Date;
-}
+import { User, StatsOverview, StreakInfo } from "../types";
+import { smallstepApi } from "../services/api";
 
 interface UserState {
-  userData: UserData;
-  userGameData: UserGameData;
+  user: User | null;
+  stats: StatsOverview | null;
+  streakInfo: StreakInfo | null;
+  isLoading: boolean;
+  error: string | null;
 
   // Actions
-  updateUserData: (updates: Partial<UserData>) => void;
-  updateGameData: (updates: Partial<UserGameData>) => void;
-  completeStep: () => void;
-  resetStreak: () => void;
-  addExperience: (amount: number) => void;
+  fetchUser: () => Promise<void>;
+  fetchStats: () => Promise<void>;
+  fetchStreakInfo: () => Promise<void>;
+  clearError: () => void;
 }
 
-export const useUserStore = create<UserState>((set, get) => ({
+export const useUserStore = create<UserState>((set) => ({
   // Initial state
-  userData: mockUserData,
-  userGameData: mockUserGameData,
+  user: null,
+  stats: null,
+  streakInfo: null,
+  isLoading: false,
+  error: null,
 
   // Actions
-  updateUserData: (updates) =>
-    set((state) => ({
-      userData: { ...state.userData, ...updates },
-    })),
+  fetchUser: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      // TODO: 실제 사용자 ID를 저장소에서 가져와야 함
+      const userId = 1;
+      const response = await smallstepApi.getUser(userId);
+      if (response.success && response.data) {
+        set({ user: response.data, isLoading: false });
+      } else {
+        set({ error: response.error || '사용자 정보를 불러오는데 실패했습니다', isLoading: false });
+      }
+    } catch (error) {
+      console.error("사용자 정보 로드 실패:", error);
+      set({ error: '사용자 정보를 불러오는데 실패했습니다', isLoading: false });
+    }
+  },
 
-  updateGameData: (updates) =>
-    set((state) => ({
-      userGameData: { ...state.userGameData, ...updates },
-    })),
+  fetchStats: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const userId = 1; // MVP용 고정 ID
+      const response = await smallstepApi.fetchStatsOverview(userId);
+      if (response.success && response.data) {
+        set({ stats: response.data, isLoading: false });
+      } else {
+        set({ error: response.error || '통계 정보를 불러오는데 실패했습니다', isLoading: false });
+      }
+    } catch (error) {
+      console.error("통계 정보 로드 실패:", error);
+      set({ error: '통계 정보를 불러오는데 실패했습니다', isLoading: false });
+    }
+  },
 
-  completeStep: () =>
-    set((state) => {
-      const newCompletedSteps = state.userGameData.completedSteps + 1;
-      const newStreak = state.userGameData.currentStreak + 1;
-      const newExperience = calculateExperience(newCompletedSteps, newStreak);
-      const newLevel = calculateLevel(newExperience);
+  fetchStreakInfo: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const userId = 1; // MVP용 고정 ID
+      const response = await smallstepApi.fetchStreakInfo(userId);
+      if (response.success && response.data) {
+        set({ streakInfo: response.data, isLoading: false });
+      } else {
+        set({ error: response.error || '스트릭 정보를 불러오는데 실패했습니다', isLoading: false });
+      }
+    } catch (error) {
+      console.error("스트릭 정보 로드 실패:", error);
+      set({ error: '스트릭 정보를 불러오는데 실패했습니다', isLoading: false });
+    }
+  },
 
-      return {
-        userData: {
-          ...state.userData,
-          completedSteps: newCompletedSteps,
-          consecutiveDays: newStreak,
-        },
-        userGameData: {
-          ...state.userGameData,
-          completedSteps: newCompletedSteps,
-          currentStreak: newStreak,
-          experience: newExperience,
-          level: newLevel,
-          lastCompletedDate: new Date(),
-        },
-      };
-    }),
-
-  resetStreak: () =>
-    set((state) => ({
-      userData: {
-        ...state.userData,
-        consecutiveDays: 0,
-      },
-      userGameData: {
-        ...state.userGameData,
-        currentStreak: 0,
-      },
-    })),
-
-  addExperience: (amount) =>
-    set((state) => {
-      const newExperience = state.userGameData.experience + amount;
-      const newLevel = calculateLevel(newExperience);
-
-      return {
-        userGameData: {
-          ...state.userGameData,
-          experience: newExperience,
-          level: newLevel,
-        },
-      };
-    }),
+  clearError: () => set({ error: null }),
 }));
