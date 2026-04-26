@@ -1,4 +1,13 @@
-# SmallStep Frontend
+# SmallStep Frontend v2.0.0
+
+SmallStep 프론트엔드 - v2 주간 적응형 AI 코치
+
+## 주요 변경사항 (v2)
+
+- **순서 기반 태스크 시스템**: 날짜별 활동 → 순서 기반 태스크 (LOCKED → AVAILABLE → COMPLETED/SKIPPED)
+- **Phase 타임라인**: 목표 달성을 위한 단계별 진행 상황 시각화
+- **AI 코치 통합**: 목표 등록 시 Phase 자동 생성, 주간 계획 자동 생성
+- **게이미피케이션**: XP/레벨/스트릭 시스템
 
 ## 환경 설정
 

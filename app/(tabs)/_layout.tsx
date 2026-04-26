@@ -61,10 +61,10 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="report"
+        name="stats"
         options={{
-          title: '리포트',
-          tabBarLabel: '리포트',
+          title: '통계',
+          tabBarLabel: '통계',
           tabBarIcon: ({ color, focused }) => (
             <View style={{ alignItems: 'center', justifyContent: 'center' }}>
               <Feather name="bar-chart-2" size={22} color={color} strokeWidth={focused ? 2.5 : 1.8} />

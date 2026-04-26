@@ -1,0 +1,371 @@
+import { StyleSheet } from "react-native";
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#FAFAFA",
+  },
+  header: {
+    padding: 16,
+    backgroundColor: "#FFFFFF",
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#1F2937",
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: 16,
+    paddingBottom: 32,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    fontSize: 16,
+    color: "#6B7280",
+  },
+  statsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginHorizontal: -6,
+    marginBottom: 16,
+  },
+  statCard: {
+    width: "23%",
+    margin: "1%",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    padding: 16,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  statValue: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#3B82F6",
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: "#6B7280",
+  },
+  section: {
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1F2937",
+    marginBottom: 12,
+  },
+  taskStatsCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  taskStatRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+  },
+  taskStatLabel: {
+    fontSize: 16,
+    color: "#374151",
+  },
+  taskStatValue: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1F2937",
+  },
+  completedText: {
+    color: "#10B981",
+  },
+  skippedText: {
+    color: "#EF4444",
+  },
+  progressRow: {
+    marginTop: 16,
+    alignItems: "center",
+  },
+  progressBarContainer: {
+    width: "100%",
+    height: 12,
+    backgroundColor: "#E5E7EB",
+    borderRadius: 6,
+    overflow: "hidden",
+    marginBottom: 8,
+  },
+  progressBar: {
+    height: "100%",
+    backgroundColor: "#3B82F6",
+    borderRadius: 6,
+  },
+  progressText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#3B82F6",
+  },
+  streakCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  streakRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  streakItem: {
+    flex: 1,
+    alignItems: "center",
+  },
+  streakValue: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#F59E0B",
+    marginBottom: 4,
+  },
+  streakLabel: {
+    fontSize: 14,
+    color: "#6B7280",
+  },
+  streakDivider: {
+    width: 1,
+    height: 50,
+    backgroundColor: "#E5E7EB",
+  },
+  xpCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  xpRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 8,
+  },
+  xpLabel: {
+    fontSize: 16,
+    color: "#374151",
+  },
+  xpValue: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1F2937",
+  },
+  xpBarContainer: {
+    height: 10,
+    backgroundColor: "#E5E7EB",
+    borderRadius: 5,
+    overflow: "hidden",
+    marginTop: 12,
+  },
+  xpBar: {
+    height: "100%",
+    backgroundColor: "#F59E0B",
+    borderRadius: 5,
+  },
+  chartCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  barChartContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "flex-end",
+    height: 140,
+    paddingTop: 20,
+  },
+  barColumn: {
+    alignItems: "center",
+    flex: 1,
+  },
+  barWrapper: {
+    height: 100,
+    justifyContent: "flex-end",
+    width: "100%",
+    alignItems: "center",
+  },
+  bar: {
+    width: 28,
+    backgroundColor: "#E5E7EB",
+    borderRadius: 4,
+    minHeight: 5,
+  },
+  todayBar: {
+    backgroundColor: "#3B82F6",
+  },
+  completedBar: {
+    backgroundColor: "#10B981",
+  },
+  barLabel: {
+    fontSize: 12,
+    color: "#6B7280",
+    marginTop: 8,
+  },
+  todayLabel: {
+    fontWeight: "bold",
+    color: "#3B82F6",
+  },
+  barValue: {
+    fontSize: 11,
+    color: "#9CA3AF",
+    marginTop: 2,
+  },
+  streakHistoryCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  calendarContainer: {
+    marginTop: 16,
+  },
+  calendarTitle: {
+    fontSize: 14,
+    color: "#6B7280",
+    marginBottom: 12,
+  },
+  calendarGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginHorizontal: -4,
+  },
+  calendarDay: {
+    width: "10%",
+    aspectRatio: 1,
+    padding: 2,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  streakDot: {
+    width: "80%",
+    height: "80%",
+    borderRadius: 4,
+  },
+  streakDotCompleted: {
+    backgroundColor: "#10B981",
+  },
+  streakDotEmpty: {
+    backgroundColor: "#F3F4F6",
+  },
+  calendarDayCompleted: {
+    // Background handling moved to streakDot
+  },
+  calendarDayText: {
+    fontSize: 10,
+    color: "#9CA3AF",
+  },
+  calendarDayTextCompleted: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+  },
+  calendarLegend: {
+    flexDirection: "row",
+    marginTop: 12,
+    justifyContent: "center",
+  },
+  legendItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginHorizontal: 12,
+  },
+  legendDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 6,
+  },
+  legendDotActive: {
+    backgroundColor: "#D1FAE5",
+    borderWidth: 1,
+    borderColor: "#10B981",
+  },
+  legendDotInactive: {
+    backgroundColor: "#F3F4F6",
+  },
+  legendText: {
+    fontSize: 12,
+    color: "#6B7280",
+  },
+  goalPhaseCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  goalPhaseTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1F2937",
+    marginBottom: 10,
+  },
+  goalPhaseProgressRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  goalPhaseProgressBarContainer: {
+    flex: 1,
+    height: 8,
+    backgroundColor: "#F3F4F6",
+    borderRadius: 4,
+    marginRight: 12,
+    overflow: "hidden",
+  },
+  goalPhaseProgressBar: {
+    height: "100%",
+    backgroundColor: "#3B82F6",
+    borderRadius: 4,
+  },
+  goalPhaseProgressText: {
+    fontSize: 13,
+    fontWeight: "bold",
+    color: "#3B82F6",
+    width: 40,
+    textAlign: "right",
+  },
+});
