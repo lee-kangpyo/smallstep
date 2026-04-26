@@ -1,14 +1,14 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
 import {
-  User, UserCreate, UserUpdate,
-  Goal, GoalCreate, GoalUpdate,
-  Activity, ActivityCreate, ActivityUpdate,
-  GameData, GameDataCreate, GameDataUpdate,
-  GoalAnalysisRequest, GoalAnalysisResponse,
-  AIFeedbackRequest, AIFeedbackResponse,
+  User, UserCreate,
+  Goal, GoalCreate,
+  Phase,
+  WeeklyPlan, WeeklyPlanCreate,
+  Task,
+  ActivityLog,
+  StatsOverview, WeeklyStats, StreakInfo,
   HealthCheckResponse,
-  ApiResponse, LoadingState,
-  GoalTemplate, TemplatePreviewData
+  ApiResponse,
 } from '../types/api';
 import { config } from '../config/env';
 import { handleApiError, withRetry, handleNetworkError } from '../utils/errorHandler';
@@ -109,7 +109,7 @@ class ApiService {
   }
 
   // PUT 요청 (재시도 로직 포함)
-  async put<T>(endpoint: string, body: any): Promise<ApiResponse<T>> {
+  async put<T>(endpoint: string, body?: any): Promise<ApiResponse<T>> {
     return withRetry(async () => {
       try {
         const response = await this.api.put<T>(endpoint, body);
@@ -144,7 +144,7 @@ class ApiService {
 // API 서비스 인스턴스 생성
 export const apiService = new ApiService();
 
-// SmallStep API 엔드포인트 함수들 (타입 안전성 확보)
+// SmallStep v2 API 엔드포인트 함수들
 export const smallstepApi = {
   // 헬스체크
   healthCheck: () => apiService.get<HealthCheckResponse>("/api/smallstep/health"),
@@ -154,33 +154,36 @@ export const smallstepApi = {
   getUser: (userId: number) => apiService.get<User>(`/api/smallstep/users/${userId}`),
   
   // 목표 관리
+  fetchGoals: () => apiService.get<Goal[]>("/api/smallstep/goals"),
   createGoal: (goalData: GoalCreate) => apiService.post<Goal>("/api/smallstep/goals", goalData),
-  getUserGoals: (userId: number) => apiService.get<Goal[]>(`/api/smallstep/goals/user/${userId}`),
+  getGoalDetail: (goalId: number) => apiService.get<Goal>(`/api/smallstep/goals/${goalId}`),
   
-  // 활동 관리
-  createActivity: (activityData: ActivityCreate) => apiService.post<Activity>("/api/smallstep/activities", activityData),
-  getGoalActivities: (goalId: number) => apiService.get<Activity[]>(`/api/smallstep/activities/goal/${goalId}`),
+  // Phase 관리
+  fetchPhases: (goalId: number) => apiService.get<Phase[]>(`/api/smallstep/goals/${goalId}/phases`),
+  getPhaseDetail: (phaseId: number) => apiService.get<Phase>(`/api/smallstep/phases/${phaseId}`),
   
-  // 게임 데이터
-  createGameData: (gameData: GameDataCreate) => apiService.post<GameData>("/api/smallstep/game-data", gameData),
-  getUserGameData: (userId: number) => apiService.get<GameData>(`/api/smallstep/game-data/user/${userId}`),
+  // 주간 계획 관리
+  generateWeeklyPlan: (data: WeeklyPlanCreate) => apiService.post<WeeklyPlan>("/api/smallstep/weekly-plans/generate", data),
+  fetchCurrentWeeklyPlan: (goalId: number) => apiService.get<WeeklyPlan>(`/api/smallstep/goals/${goalId}/current-weekly-plan`),
+  fetchWeeklyPlan: (planId: number) => apiService.get<WeeklyPlan>(`/api/smallstep/weekly-plans/${planId}`),
   
-  // LLM 서비스
-  analyzeGoal: (goalData: GoalAnalysisRequest) => apiService.post<GoalAnalysisResponse>("/api/smallstep/llm/analyze-goal", goalData),
-  generateFeedback: (feedbackData: AIFeedbackRequest) => apiService.post<AIFeedbackResponse>("/api/smallstep/llm/generate-feedback", feedbackData),
+  // 태스크 관리
+  fetchTodayTasks: () => apiService.get<Task[]>("/api/smallstep/tasks/today"),
+  completeTask: (taskId: number) => apiService.put<Task>(`/api/smallstep/tasks/${taskId}/complete`),
+
+  // 활동 로그
+  fetchActivityLogs: (goalId: number) => apiService.get<ActivityLog[]>(`/api/smallstep/goals/${goalId}/activity-logs`),
   
-  // 온보딩 서비스
-  getOnboardingTemplates: () => apiService.get<{categories: Record<string, GoalTemplate[]>, total_count: number}>("/api/smallstep/onboarding/templates"),
-  getTemplatePreview: (templateId: string) => apiService.get<{template_id: string, goal_text: string, category: string, cached_plan_id: string, detail: TemplatePreviewData}>("/api/smallstep/onboarding/templates/" + templateId + "/preview"),
+  // 통계
+  fetchStatsOverview: (userId: number) => apiService.get<StatsOverview>(`/api/smallstep/stats/overview?user_id=${userId}`),
+  fetchWeeklyStats: (userId: number) => apiService.get<WeeklyStats[]>(`/api/smallstep/stats/weekly?user_id=${userId}`),
+  fetchStreakInfo: (userId: number) => apiService.get<StreakInfo>(`/api/smallstep/stats/streak?user_id=${userId}`),
 };
 
-// 기존 API 함수들 (하위 호환성)
+// 기본 API 함수들 (하위 호환성)
 export const api = {
-  // 예시 API 함수들 (실제 FastAPI 엔드포인트에 맞게 수정 필요)
-  getUsers: () => apiService.get("/users"),
-  getUserById: (id: string) => apiService.get(`/users/${id}`),
-  createUser: (userData: any) => apiService.post("/users", userData),
-  updateUser: (id: string, userData: any) =>
-    apiService.put(`/users/${id}`, userData),
-  deleteUser: (id: string) => apiService.delete(`/users/${id}`),
+  get: <T>(endpoint: string) => apiService.get<T>(endpoint),
+  post: <T>(endpoint: string, body: any) => apiService.post<T>(endpoint, body),
+  put: <T>(endpoint: string, body?: any) => apiService.put<T>(endpoint, body),
+  delete: <T>(endpoint: string) => apiService.delete<T>(endpoint),
 };

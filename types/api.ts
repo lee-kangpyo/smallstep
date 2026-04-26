@@ -1,4 +1,4 @@
-// SmallStep API 타입 정의
+// SmallStep v2 API 타입 정의
 
 // ===== 사용자 관련 타입 =====
 export interface UserBase {
@@ -39,8 +39,12 @@ export interface GoalBase {
   target_date?: string; // ISO datetime string
 }
 
-export interface GoalCreate extends GoalBase {
-  user_id: number;
+export interface GoalCreate {
+  title: string;
+  description?: string;
+  daily_minutes?: number;
+  deadline_date?: string;
+  current_level?: string;
 }
 
 export interface GoalUpdate {
@@ -54,104 +58,94 @@ export interface GoalUpdate {
 
 export interface Goal extends GoalBase {
   id: number;
-  user_id: number;
   status: string;
   progress: number;
   created_at: string; // ISO datetime string
   updated_at: string; // ISO datetime string
 }
 
-// ===== 활동 관련 타입 =====
-export interface ActivityBase {
-  title: string;
-  description: string;
-  activity_type: string;
-}
-
-export interface ActivityCreate extends ActivityBase {
-  goal_id: number;
-  week: number;
-  day: number;
-  phase_link: number;
-}
-
-export interface ActivityUpdate {
-  title?: string;
-  description?: string;
-  activity_type?: string;
-  is_completed?: boolean;
-  completed_at?: string; // ISO datetime string
-}
-
-export interface Activity extends ActivityBase {
+// ===== Phase 타입 =====
+export interface Phase {
   id: number;
   goal_id: number;
-  week: number;
-  day: number;
-  phase_link: number;
-  is_completed: boolean;
-  completed_at?: string; // ISO datetime string
-  created_at: string; // ISO datetime string
-}
-
-// ===== 게임 데이터 관련 타입 =====
-export interface GameDataBase {
-  level: number;
-  experience: number;
-  current_streak: number;
-  longest_streak: number;
-}
-
-export interface GameDataCreate extends GameDataBase {
-  user_id: number;
-}
-
-export interface GameDataUpdate {
-  level?: number;
-  experience?: number;
-  current_streak?: number;
-  longest_streak?: number;
-}
-
-export interface GameData extends GameDataBase {
-  id: number;
-  user_id: number;
-  last_completed_date?: string; // ISO datetime string
-  created_at: string; // ISO datetime string
-  updated_at: string; // ISO datetime string
-}
-
-// ===== LLM 관련 타입 =====
-export interface GoalAnalysisRequest {
-  goal: string;
-  duration_weeks?: number;
-  weekly_frequency?: number;
-}
-
-export interface RoadmapPhase {
-  phase: number;
+  phase_order: number;
   phase_title: string;
   phase_description: string;
-  key_milestones: string[];
+  estimated_weeks: number;
+  status: 'PENDING' | 'ACTIVE' | 'COMPLETED';
+  started_at?: string;
+  completed_at?: string;
 }
 
-export interface GoalAnalysisResponse {
-  roadmap: RoadmapPhase[];
-  schedule: Activity[];
-}
-
-export interface AIFeedbackRequest {
-  user_id: number;
+// ===== 주간 계획 타입 =====
+export interface WeeklyPlan {
+  id: number;
   goal_id: number;
-  completed_activities: string[];
-  current_progress: number;
+  phase_id: number;
+  week_start_date: string;
+  week_end_date: string;
+  tasks: Task[];
 }
 
-export interface AIFeedbackResponse {
-  feedback_message: string;
-  next_steps: string[];
-  motivation_quote: string;
-  progress_analysis: string;
+export interface WeeklyPlanCreate {
+  goal_id: number;
+  phase_id: number;
+  week_start_date: string;
+  week_end_date: string;
+}
+
+// ===== 태스크 타입 =====
+export interface Task {
+  id: number;
+  weekly_plan_id: number;
+  task_order: number;
+  task_title: string;
+  task_description: string;
+  estimated_minutes: number;
+  status: 'LOCKED' | 'AVAILABLE' | 'COMPLETED' | 'SKIPPED';
+  completed_at?: string;
+}
+
+// ===== 활동 로그 타입 =====
+export interface ActivityLog {
+  id: number;
+  user_id: number;
+  task_id: number;
+  action: string;
+  xp_earned: number;
+  created_at: string;
+}
+
+// ===== 통계 타입 =====
+export interface StatsOverview {
+  total_goals: number;
+  active_goals: number;
+  completed_goals: number;
+  total_tasks: number;
+  completed_tasks: number;
+  skipped_tasks: number;
+  current_streak: number;
+  longest_streak: number;
+  level: number;
+  experience_points: number;
+  next_level_xp: number;
+  weekly_completion_rate: number;
+}
+
+export interface WeeklyStats {
+  week_start_date: string;
+  week_end_date: string;
+  total_tasks: number;
+  completed_tasks: number;
+  completion_rate: number;
+  daily_completion?: number[];
+}
+
+export interface StreakInfo {
+  current_streak: number;
+  longest_streak: number;
+  last_completed_date?: string;
+  streak_history: { date: string; completed: boolean }[];
 }
 
 // ===== API 응답 타입 =====
@@ -180,59 +174,11 @@ export interface LoadingState {
   retryable: boolean;
 }
 
-// ===== 온보딩 관련 타입 =====
-export interface TemplatePreviewData {
-  plan_id: string;
-  goal: string;
-  status: string;
-  needs_llm_completion: boolean;
-  duration_weeks: number;
-  weekly_frequency: number;
-}
-
-export interface GoalTemplate {
-  id: string;
-  goal_text: string;
-  category: string;
-  display_order: number;
-  cached_plan_id: string;
-  preview_data: TemplatePreviewData;
-}
-
-export interface TemplatesByCategory {
-  [category: string]: GoalTemplate[];
-}
-
-export interface TemplatesResponse {
-  categories: TemplatesByCategory;
-  total_count: number;
-}
-
-export interface TemplateDetail {
-  plan_id: string;
-  goal: string;
-  duration_weeks: number;
-  weekly_frequency: number;
-  plan_data: {
-    goal: string;
-    category: string;
-    template_id: number;
-    status: string;
-    needs_llm_completion: boolean;
-    created_at: string;
-  };
-}
-
-export interface TemplateDetailResponse {
-  template_id: string;
-  goal_text: string;
-  category: string;
-  cached_plan_id: string;
-  detail: TemplateDetail;
-}
-
 // ===== 헬스체크 타입 =====
 export interface HealthCheckResponse {
   status: string;
   service: string;
 }
+
+// ===== v1 타입 제거됨 =====
+// Activity, GoalTemplate, GameData, RoadmapPhase, TemplatePreviewData 등은 v2에서 사용하지 않음
